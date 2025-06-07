@@ -6,7 +6,7 @@ import { Particle } from './types/Utils.types';
  * It holds and serves all singleton particle instances.
  */
 export class HiggsField {
-  private readonly instances = new Map<Particle, any>();
+  private readonly particles = new Map<Particle, any>();
   private readonly factories = new Map<Particle, () => any>();
 
   /**
@@ -26,7 +26,7 @@ export class HiggsField {
    * @returns An instance of the particle.
    */
   public get<T>(particleClass: Particle<T>): T {
-    if (!this.instances.has(particleClass)) {
+    if (!this.particles.has(particleClass)) {
       const factory = this.factories.get(particleClass);
 
       if (!factory) {
@@ -35,9 +35,19 @@ export class HiggsField {
       }
 
       const newInstance = factory();
-      this.instances.set(particleClass, newInstance);
+      this.particles.set(particleClass, newInstance);
     }
 
-    return this.instances.get(particleClass) as T;
+    return this.particles.get(particleClass) as T;
+  }
+
+  /**
+   * Sets an intance of a particle
+   * @param particleClass The particle class
+   * @param instance An instance of the particle
+   */
+  public set<T>(particleClass: Particle<T>, instance: T): this {
+    this.particles.set(particleClass, instance);
+    return this;
   }
 }
