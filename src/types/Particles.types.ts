@@ -5,7 +5,7 @@ import { Particle } from './Utils.types';
  */
 export interface IParticleCreation<
   ParticleType = unknown,
-  ParticleParams = unknown
+  ParticleParams = unknown[]
 > {
   /**
    * The event that triggers the creation of the particle
@@ -26,23 +26,5 @@ export interface IParticleCreation<
   /**
    * Defines how the particle should be created
    */
-  with?: IWith<ParticleParams>;
-}
-
-/**
- * Defines how the particle should be created
- */
-export interface IWith<ParticleParams = unknown> {
-  /**
-   * Params that should be used to create the particle
-   */
-  params?: ParticleParams;
-  /**
-   * Defines if the particle should be created without params
-   */
-  empty?: boolean;
-  /**
-   * Defines the notation to be used to get the data that should be used to create the particle
-   */
-  notation?: string;
+  with?: ParticleParams;
 }
