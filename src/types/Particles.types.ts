@@ -1,6 +1,6 @@
 import { HiggsField } from '../HiggsField';
 import { Notation } from '../Notation';
-import { ScopeRetriever } from '../ScopeRetriever';
+import { QuantumPointer } from '../QuantumPointer';
 import { Particle } from './Utils.types';
 
 /**
@@ -45,9 +45,13 @@ export interface IParticleCreation<
  */
 export interface Interaction<ParticleType = unknown, ParticleArgs = unknown[]> {
   upon?: string;
-  use: Particle<ParticleType> | Notation | ScopeRetriever;
+  use: Particle<ParticleType> | Notation | QuantumPointer;
   call: string;
   with?: ParticleArgs;
+  /**
+   * A callback that will be invoked after particle interaction and receive it's result
+   */
+  then?: <T>(result: T) => void;
 }
 
 export type Then = <ParticleType>(particle: ParticleType) => void;

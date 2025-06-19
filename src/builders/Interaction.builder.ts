@@ -1,7 +1,7 @@
 import { Notation } from '../Notation';
-import { ScopeRetriever } from '../ScopeRetriever';
+import { QuantumPointer } from '../QuantumPointer';
 import { Superposition } from '../Superposition';
-import { Interaction } from '../types/Particles.types';
+import { Interaction, Then } from '../types/Particles.types';
 import { Particle } from '../types/Utils.types';
 
 export class InteractionBuilder {
@@ -15,7 +15,7 @@ export class InteractionBuilder {
   }
 
   public use<ParticleType>(
-    target: Particle<ParticleType> | Notation | ScopeRetriever
+    target: Particle<ParticleType> | Notation | QuantumPointer
   ): this {
     this.interaction.use = target;
     return this;
@@ -26,8 +26,14 @@ export class InteractionBuilder {
     return this;
   }
 
-  public with(...args: unknown[]): Superposition {
+  public with(...args: unknown[]): this {
     this.interaction.with = args;
+
+    return this;
+  }
+
+  public then(callback: Then): Superposition {
+    this.interaction.then = callback;
 
     if (!this.interaction.use || !this.interaction.call) {
       throw new Error(
@@ -40,11 +46,14 @@ export class InteractionBuilder {
       use: this.interaction.use,
       call: this.interaction.call,
       with: this.interaction.with,
+      then: this.interaction.then,
     });
 
     this.interaction.use = undefined;
     this.interaction.call = undefined;
     this.interaction.with = undefined;
+    this.interaction.upon = undefined;
+    this.interaction.then = undefined;
 
     return this.parent;
   }

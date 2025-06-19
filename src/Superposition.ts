@@ -5,7 +5,7 @@ import { HiggsField } from './HiggsField';
 import { EventHorizon } from './EventHorizon';
 import { Notation } from './Notation';
 import { GatewayBuilder } from './builders/Gateway.builder';
-import { ScopeRetriever } from './ScopeRetriever';
+import { QuantumPointer } from './QuantumPointer';
 
 export class Superposition {
   public readonly particlesContracts = new Map<number, IParticleCreation>();
@@ -72,7 +72,7 @@ export class Superposition {
         return arg.getData(this.horizon.query().from(upon).get());
       }
 
-      if (arg instanceof ScopeRetriever) {
+      if (arg instanceof QuantumPointer) {
         return arg.get();
       }
 
@@ -145,12 +145,12 @@ export class Superposition {
     );
 
     for (const interaction of filteredInteractions) {
-      const { use: target, call, with: args } = interaction;
+      const { use: target, call, with: args, then } = interaction;
       let instance: unknown;
 
       if (target instanceof Notation) {
         instance = this.horizon.query().using(target.get()).get();
-      } else if (target instanceof ScopeRetriever) {
+      } else if (target instanceof QuantumPointer) {
         instance = target.get();
       } else {
         instance = this.higgs.get(target as Particle);
@@ -160,9 +160,13 @@ export class Superposition {
         throw new Error('Instance could not be resolved from target.');
       }
 
-      (instance as Record<string, (...args: any[]) => any>)[call](
-        ...(args ?? [])
-      );
+      const result = (instance as Record<string, (...args: any[]) => any>)[
+        call
+      ](...(args ?? []));
+
+      if (then) {
+        then(result);
+      }
 
       if (!this.higgs.getParticleOptions(target as Particle)?.persist) {
         this.higgs.destroy(target as Particle);
