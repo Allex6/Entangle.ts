@@ -1,3 +1,5 @@
+import { HiggsField } from '../HiggsField';
+import { Notation } from '../Notation';
 import { Particle } from './Utils.types';
 
 /**
@@ -5,7 +7,7 @@ import { Particle } from './Utils.types';
  */
 export interface IParticleCreation<
   ParticleType = unknown,
-  ParticleParams = unknown[]
+  ParticleArgs = unknown[]
 > {
   /**
    * The event that triggers the creation of the particle
@@ -26,5 +28,23 @@ export interface IParticleCreation<
   /**
    * Defines how the particle should be created
    */
-  with?: ParticleParams;
+  using?: ParticleArgs;
+  /**
+   * A callback that will be invoked after particle creation and receive it's instance
+   */
+  then?: (particle: ParticleType, scope?: HiggsField) => void;
+  /**
+   * Defines where the particle is going to be saved
+   */
+  scope?: HiggsField;
+}
+
+/**
+ * Defines an interaction between particles. It allows the usage of a particle method with custom args
+ */
+export interface Interaction<ParticleType = unknown, ParticleArgs = unknown[]> {
+  upon?: string;
+  use: Particle<ParticleType> | Notation;
+  call: string;
+  with?: ParticleArgs;
 }
