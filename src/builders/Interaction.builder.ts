@@ -1,4 +1,5 @@
 import { Notation } from '../Notation';
+import { ScopeRetriever } from '../ScopeRetriever';
 import { Superposition } from '../Superposition';
 import { Interaction } from '../types/Particles.types';
 import { Particle } from '../types/Utils.types';
@@ -13,7 +14,9 @@ export class InteractionBuilder {
     this.interaction.upon = this.event;
   }
 
-  public use<ParticleType>(target: Particle<ParticleType> | Notation): this {
+  public use<ParticleType>(
+    target: Particle<ParticleType> | Notation | ScopeRetriever
+  ): this {
     this.interaction.use = target;
     return this;
   }

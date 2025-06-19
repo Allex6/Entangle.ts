@@ -1,4 +1,5 @@
 import { Notation } from '../Notation';
+import { ScopeRetriever } from '../ScopeRetriever';
 import { Superposition } from '../Superposition';
 import { IParticleCreation } from '../types/Particles.types';
 import { Particle } from '../types/Utils.types';
@@ -32,7 +33,9 @@ export class GatewayBuilder {
     return this;
   }
 
-  public use(target: Particle<any> | Notation): InteractionBuilder {
+  public use(
+    target: Particle<any> | Notation | ScopeRetriever
+  ): InteractionBuilder {
     // Cria o builder específico e já pré-configura o evento 'upon' e o alvo 'use'.
     return new InteractionBuilder(this.parent, this.eventName).use(target);
   }

@@ -1,5 +1,6 @@
 import { HiggsField } from '../HiggsField';
 import { Notation } from '../Notation';
+import { ScopeRetriever } from '../ScopeRetriever';
 import { Particle } from './Utils.types';
 
 /**
@@ -32,7 +33,7 @@ export interface IParticleCreation<
   /**
    * A callback that will be invoked after particle creation and receive it's instance
    */
-  then?: (particle: ParticleType, scope?: HiggsField) => void;
+  then?: (particle: ParticleType) => void;
   /**
    * Defines where the particle is going to be saved
    */
@@ -44,7 +45,9 @@ export interface IParticleCreation<
  */
 export interface Interaction<ParticleType = unknown, ParticleArgs = unknown[]> {
   upon?: string;
-  use: Particle<ParticleType> | Notation;
+  use: Particle<ParticleType> | Notation | ScopeRetriever;
   call: string;
   with?: ParticleArgs;
 }
+
+export type Then = <ParticleType>(particle: ParticleType) => void;

@@ -1,6 +1,6 @@
 import { HiggsField } from '../HiggsField';
 import { Superposition } from '../Superposition';
-import { IParticleCreation } from '../types/Particles.types';
+import { IParticleCreation, Then } from '../types/Particles.types';
 import { Particle } from '../types/Utils.types';
 
 export class ParticleContractBuilder {
@@ -22,13 +22,23 @@ export class ParticleContractBuilder {
     return this;
   }
 
-  public inScope(scope: HiggsField): Superposition {
+  public inScope(scope: HiggsField): this {
+    this.contract.scope = scope;
+    return this;
+  }
+
+  public using(...args: unknown[]): this {
+    this.contract.using = args;
+    return this;
+  }
+
+  public then(callback: Then): Superposition {
     // If both upon and build are missing, we cannot create a particle
     if (!this.contract.upon || !this.contract.build) {
       throw new Error('Missing required properties');
     }
 
-    this.contract.scope = scope;
+    this.contract.then = callback;
 
     this.parent.addContract({
       upon: this.contract.upon,
@@ -37,6 +47,7 @@ export class ParticleContractBuilder {
       build: this.contract.build,
       using: this.contract.using,
       scope: this.contract.scope,
+      then: this.contract.then,
     });
 
     // Reset the particle that were being configured
@@ -46,12 +57,8 @@ export class ParticleContractBuilder {
     this.contract.build = undefined;
     this.contract.using = undefined;
     this.contract.scope = undefined;
+    this.contract.then = undefined;
 
     return this.parent;
-  }
-
-  public using(...args: unknown[]): this {
-    this.contract.using = args;
-    return this;
   }
 }

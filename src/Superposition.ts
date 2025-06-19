@@ -5,6 +5,7 @@ import { HiggsField } from './HiggsField';
 import { EventHorizon } from './EventHorizon';
 import { Notation } from './Notation';
 import { GatewayBuilder } from './builders/Gateway.builder';
+import { ScopeRetriever } from './ScopeRetriever';
 
 export class Superposition {
   public readonly particlesContracts = new Map<number, IParticleCreation>();
@@ -71,6 +72,10 @@ export class Superposition {
         return arg.getData(this.horizon.query().from(upon).get());
       }
 
+      if (arg instanceof ScopeRetriever) {
+        return arg.get();
+      }
+
       return arg;
     });
 
@@ -98,7 +103,7 @@ export class Superposition {
     }
 
     if (then) {
-      then(particleInstance, context);
+      then(particleInstance);
     }
   }
 
@@ -118,8 +123,20 @@ export class Superposition {
     return this;
   }
 
-  public addInteraction(interaction: Interaction) {
+  public addInteraction(interaction: Interaction): this {
     this.interactions.push(interaction);
+
+    const { upon } = interaction;
+
+    if (upon) {
+      this.aether.once(upon, (...args: any[]) => {
+        this.horizon.add(upon, args);
+        this.checkForParticlesCreation(upon);
+        this.checkForParticlesInteractions(upon);
+      });
+    }
+
+    return this;
   }
 
   private checkForParticlesInteractions(event: string) {
@@ -133,6 +150,8 @@ export class Superposition {
 
       if (target instanceof Notation) {
         instance = this.horizon.query().using(target.get()).get();
+      } else if (target instanceof ScopeRetriever) {
+        instance = target.get();
       } else {
         instance = this.higgs.get(target as Particle);
       }
