@@ -1,8 +1,8 @@
-import { Notation } from '../Notation';
+import { Notation } from '../shared/Notation';
 import { QuantumPointer } from '../QuantumPointer';
 import { Superposition } from '../Superposition';
-import { Interaction, Then } from '../types/Particles.types';
-import { Particle } from '../types/Utils.types';
+import { Interaction, Then } from '../shared/types/Particles.types';
+import { Particle } from '../shared/types/Utils.types';
 
 export class InteractionBuilder {
   private readonly interaction: Partial<Interaction> = {};

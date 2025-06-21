@@ -1,5 +1,5 @@
-import { Notation } from '../Notation';
-import { CausalityLog } from '../types/Events.types';
+import { Notation } from '../shared/Notation';
+import { CausalityLog } from '../shared/types/Events.types';
 
 export class QueryBuilder {
   private fromClause?: string;

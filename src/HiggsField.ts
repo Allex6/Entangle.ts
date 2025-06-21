@@ -1,4 +1,4 @@
-import { Particle } from './types/Utils.types';
+import { Particle } from './shared/types/Utils.types';
 
 /**
  * The Higgs Field gives "mass" (substance) to particle classes,

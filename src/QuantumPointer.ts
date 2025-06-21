@@ -1,5 +1,5 @@
 import { HiggsField } from './HiggsField';
-import { Particle } from './types/Utils.types';
+import { Particle } from './shared/types/Utils.types';
 
 export class QuantumPointer {
   constructor(

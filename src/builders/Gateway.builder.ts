@@ -1,13 +1,13 @@
-import { Notation } from '../Notation';
+import { Notation } from '../shared/Notation';
 import { QuantumPointer } from '../QuantumPointer';
 import { Superposition } from '../Superposition';
-import { IParticleCreation } from '../types/Particles.types';
-import { Particle } from '../types/Utils.types';
+import { ParticleCreation } from '../shared/types/Particles.types';
+import { Particle } from '../shared/types/Utils.types';
 import { InteractionBuilder } from './Interaction.builder';
 import { ParticleContractBuilder } from './Particle.builder';
 
 export class GatewayBuilder {
-  private readonly particleContract: Partial<IParticleCreation> = {};
+  private readonly particleContract: Partial<ParticleCreation> = {};
 
   constructor(
     private readonly parent: Superposition,

@@ -1,15 +1,15 @@
-import { Particle } from './types/Utils.types';
-import { Interaction, IParticleCreation } from './types/Particles.types';
+import { Particle } from './shared/types/Utils.types';
+import { Interaction, ParticleCreation } from './shared/types/Particles.types';
 import { Aether } from './Aether';
 import { HiggsField } from './HiggsField';
 import { EventHorizon } from './EventHorizon';
-import { Notation } from './Notation';
+import { Notation } from './shared/Notation';
 import { GatewayBuilder } from './builders/Gateway.builder';
 import { QuantumPointer } from './QuantumPointer';
 
 export class Superposition {
-  public readonly particlesContracts = new Map<number, IParticleCreation>();
-  public readonly contracts: IParticleCreation[] = [];
+  public readonly particlesContracts = new Map<number, ParticleCreation>();
+  public readonly contracts: ParticleCreation[] = [];
   public readonly interactions: Interaction[] = [];
 
   constructor(
@@ -45,7 +45,7 @@ export class Superposition {
   /**
    * Check if a specific particle can be created
    */
-  private canCreateAParticle(contract: IParticleCreation): boolean {
+  private canCreateAParticle(contract: ParticleCreation): boolean {
     const { upon, when, is } = contract;
 
     // Checks if the 'when' clause is satisfied
@@ -63,7 +63,7 @@ export class Superposition {
   /**
    * Creates a particle
    */
-  private createAParticle(contract: IParticleCreation): void {
+  private createAParticle(contract: ParticleCreation): void {
     const { upon, build, using, then, scope } = contract;
     const context = scope ?? this.higgs;
 
@@ -110,7 +110,7 @@ export class Superposition {
   /**
    * Adds a new contract of a particle creation
    */
-  public addContract(contract: IParticleCreation): this {
+  public addContract(contract: ParticleCreation): this {
     const { upon } = contract;
 
     this.aether.once(upon, (...args: any[]) => {

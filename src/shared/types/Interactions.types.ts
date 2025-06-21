@@ -1,0 +1,44 @@
+// Em seu arquivo de tipos
+
+import { QuantumPointer } from '../../QuantumPointer'; // ou ScopeRetriever
+import { Notation } from '../Notation';
+import { Event } from './Events.types';
+import { Particle } from './Particles.types';
+import { Callback } from './Utils.types';
+
+/**
+ * Represents a blueprint for executing a method on a particle.
+ * It declaratively defines the trigger, the target particle, the method to call,
+ * and the arguments to use.
+ * @template TParticle The type of the target particle's instance.
+ * @template TArgs A tuple type for the arguments of the method to be called.
+ * @template TResult The return type of the method to be called.
+ */
+export interface Interaction<
+  TParticle = unknown,
+  TArgs extends unknown[] = unknown[],
+  TResult = unknown
+> {
+  /**
+   * The event that triggers this interaction.
+   */
+  upon?: Event;
+  /**
+   * The target particle for the interaction. Can be a reference to a service class,
+   * a notation to data in an event payload, or a pointer to a particle in a temporary scope.
+   */
+  use: Particle<TParticle> | Notation | QuantumPointer;
+  /**
+   * The name of the method to be invoked on the target particle instance.
+   */
+  call: string;
+  /**
+   * An array of arguments to be passed to the invoked method.
+   */
+  with?: TArgs;
+  /**
+   * A callback that will be invoked after the interaction, receiving the result
+   * of the method call as its argument.
+   */
+  then?: Callback<[TResult], void>;
+}

@@ -1,10 +1,10 @@
 import { HiggsField } from '../HiggsField';
 import { Superposition } from '../Superposition';
-import { IParticleCreation, Then } from '../types/Particles.types';
-import { Particle } from '../types/Utils.types';
+import { ParticleCreation, Then } from '../shared/types/Particles.types';
+import { Particle } from '../shared/types/Utils.types';
 
 export class ParticleContractBuilder {
-  private readonly contract: Partial<IParticleCreation> = {};
+  private readonly contract: Partial<ParticleCreation> = {};
 
   constructor(
     private readonly parent: Superposition,

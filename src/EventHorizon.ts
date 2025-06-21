@@ -1,5 +1,5 @@
 import { QueryBuilder } from './builders/Query.builder';
-import { CausalityLog } from './types/Events.types';
+import { CausalityLog } from './shared/types/Events.types';
 
 /**
  * The limit from which data cannot escape. It holds a history of all events ocurred and allows the search of it
