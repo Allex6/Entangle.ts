@@ -1,17 +1,35 @@
-import { Particle } from './shared/types/Utils.types';
-import { Interaction, ParticleCreation } from './shared/types/Particles.types';
-import { Aether } from './Aether';
-import { HiggsField } from './HiggsField';
-import { EventHorizon } from './EventHorizon';
-import { Notation } from './shared/Notation';
+import { Aether } from '../aether';
+import { EventHorizon } from '../event-horizon/EventHorizon';
+import { HiggsField } from '../higgs-field/HiggsField';
+import { QuantumPointer } from '../quantum-pointer/QuantumPointer';
+import { Notation } from '../shared/Notation';
+import { Event } from '../shared/types/Events.types';
+import { Interaction } from '../shared/types/Interactions.types';
+import { Particle, ParticleCreation } from '../shared/types/Particles.types';
 import { GatewayBuilder } from './builders/Gateway.builder';
-import { QuantumPointer } from './QuantumPointer';
 
+/**
+ * In quantum mechanics, Superposition is the principle that a system can exist in
+ * multiple potential states at once, collapsing into a single reality upon observation.
+ *
+ * In Entangle.ts, the `Superposition` class is the embodiment of this principle.
+ * It is the central orchestrator—the "laws of physics" for your application.
+ * It listens for events from the Aether, consults the EventHorizon for historical
+ * context, and executes rule-based interactions, creating and manipulating
+ * particles within the HiggsField and its temporary scopes.
+ *
+ * @class Superposition
+ */
 export class Superposition {
   public readonly particlesContracts = new Map<number, ParticleCreation>();
   public readonly contracts: ParticleCreation[] = [];
   public readonly interactions: Interaction[] = [];
 
+  /**
+   * @param aether The communication medium, responsible for event transport.
+   * @param higgs The foundational field, the main container for service particles.
+   * @param horizon The historical record, providing context of all past events.
+   */
   constructor(
     private readonly aether: Aether,
     private readonly higgs: HiggsField,
@@ -19,9 +37,13 @@ export class Superposition {
   ) {}
 
   /**
-   * When an event happens
+   * Begins the declarative definition of a rule that is triggered by a specific event.
+   * This is the entry point for defining any "law" in the application.
+   * @param event The name of the event that triggers the rule.
+   * @returns A `GatewayBuilder` instance to continue defining the rule by choosing an
+   * action (`.build()` or `.use()`).
    */
-  public upon(event: string): GatewayBuilder {
+  public upon(event: Event): GatewayBuilder {
     return new GatewayBuilder(this, event);
   }
 
@@ -43,7 +65,8 @@ export class Superposition {
   }
 
   /**
-   * Check if a specific particle can be created
+   * Checks if a particle creation rule can be executed based on its `when` clause.
+   * @internal
    */
   private canCreateAParticle(contract: ParticleCreation): boolean {
     const { upon, when, is } = contract;
@@ -61,7 +84,10 @@ export class Superposition {
   }
 
   /**
-   * Creates a particle
+   * Creates a particle instance and registers it within the specified scope
+   * (or the main HiggsField if no scope is provided), making it available for
+   * other interactions.
+   * @internal
    */
   private createAParticle(contract: ParticleCreation): void {
     const { upon, build, using, then, scope } = contract;
@@ -108,7 +134,9 @@ export class Superposition {
   }
 
   /**
-   * Adds a new contract of a particle creation
+   * Registers a particle creation contract, setting up a listener for its trigger event.
+   * This method is intended to be called by a builder.
+   * @internal
    */
   public addContract(contract: ParticleCreation): this {
     const { upon } = contract;
@@ -123,6 +151,11 @@ export class Superposition {
     return this;
   }
 
+  /**
+   * Registers an interaction contract, setting up a listener if it's event-driven.
+   * This method is intended to be called by a builder.
+   * @internal
+   */
   public addInteraction(interaction: Interaction): this {
     this.interactions.push(interaction);
 
@@ -139,6 +172,10 @@ export class Superposition {
     return this;
   }
 
+  /**
+   * Checks for and executes all interaction rules triggered by a specific event.
+   * @internal
+   */
   private checkForParticlesInteractions(event: string) {
     const filteredInteractions = this.interactions.filter(
       (i) => i.upon === event

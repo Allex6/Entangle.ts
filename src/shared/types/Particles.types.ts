@@ -1,4 +1,4 @@
-import { HiggsField } from '../../HiggsField';
+import { HiggsField } from '../../higgs-field/HiggsField';
 import { Event } from './Events.types';
 import { Callback } from './Utils.types';
 
@@ -18,7 +18,10 @@ export type Particle<
  * @template TInstance The type of the instance to be built.
  * @template TArgs The tuple type for the constructor arguments of the instance.
  */
-export interface ParticleCreation<TInstance, TArgs extends any[]> {
+export interface ParticleCreation<
+  TInstance = unknown,
+  TArgs extends any[] = unknown[]
+> {
   /**
    * The event that triggers the creation of the particle.
    */

@@ -1,6 +1,6 @@
 // Em seu arquivo de tipos
 
-import { QuantumPointer } from '../../QuantumPointer'; // ou ScopeRetriever
+import { QuantumPointer } from '../../quantum-pointer/QuantumPointer'; // ou ScopeRetriever
 import { Notation } from '../Notation';
 import { Event } from './Events.types';
 import { Particle } from './Particles.types';

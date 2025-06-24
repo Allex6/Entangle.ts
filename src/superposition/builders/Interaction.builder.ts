@@ -1,8 +1,9 @@
-import { Notation } from '../shared/Notation';
-import { QuantumPointer } from '../QuantumPointer';
+import { QuantumPointer } from '../../quantum-pointer/QuantumPointer';
+import { Notation } from '../../shared/Notation';
+import { Interaction } from '../../shared/types/Interactions.types';
+import { Particle } from '../../shared/types/Particles.types';
+import { Callback } from '../../shared/types/Utils.types';
 import { Superposition } from '../Superposition';
-import { Interaction, Then } from '../shared/types/Particles.types';
-import { Particle } from '../shared/types/Utils.types';
 
 export class InteractionBuilder {
   private readonly interaction: Partial<Interaction> = {};
@@ -32,7 +33,7 @@ export class InteractionBuilder {
     return this;
   }
 
-  public then(callback: Then): Superposition {
+  public then(callback: Callback): Superposition {
     this.interaction.then = callback;
 
     if (!this.interaction.use || !this.interaction.call) {

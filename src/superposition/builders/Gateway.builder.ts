@@ -1,8 +1,7 @@
-import { Notation } from '../shared/Notation';
-import { QuantumPointer } from '../QuantumPointer';
+import { QuantumPointer } from '../../quantum-pointer/QuantumPointer';
+import { Notation } from '../../shared/Notation';
+import { Particle, ParticleCreation } from '../../shared/types/Particles.types';
 import { Superposition } from '../Superposition';
-import { ParticleCreation } from '../shared/types/Particles.types';
-import { Particle } from '../shared/types/Utils.types';
 import { InteractionBuilder } from './Interaction.builder';
 import { ParticleContractBuilder } from './Particle.builder';
 
