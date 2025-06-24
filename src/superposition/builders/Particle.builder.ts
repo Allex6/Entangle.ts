@@ -1,7 +1,7 @@
-import { HiggsField } from '../HiggsField';
+import { HiggsField } from '../../higgs-field/HiggsField';
+import { Particle, ParticleCreation } from '../../shared/types/Particles.types';
+import { Callback } from '../../shared/types/Utils.types';
 import { Superposition } from '../Superposition';
-import { ParticleCreation, Then } from '../shared/types/Particles.types';
-import { Particle } from '../shared/types/Utils.types';
 
 export class ParticleContractBuilder {
   private readonly contract: Partial<ParticleCreation> = {};
@@ -32,7 +32,7 @@ export class ParticleContractBuilder {
     return this;
   }
 
-  public then(callback: Then): Superposition {
+  public then(callback: Callback): Superposition {
     // If both upon and build are missing, we cannot create a particle
     if (!this.contract.upon || !this.contract.build) {
       throw new Error('Missing required properties');
