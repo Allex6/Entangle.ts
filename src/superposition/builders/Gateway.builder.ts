@@ -5,7 +5,7 @@ import { Superposition } from '../Superposition';
 import { InteractionBuilder } from './Interaction.builder';
 import { ParticleContractBuilder } from './Particle.builder';
 
-export class GatewayBuilder {
+export class GatewayBuilder<TInstance, TArgs extends any[] = any[]> {
   private readonly particleContract: Partial<ParticleCreation> = {};
 
   constructor(
@@ -13,8 +13,10 @@ export class GatewayBuilder {
     private readonly eventName: string
   ) {}
 
-  public build<T>(particleClass: Particle<T>): ParticleContractBuilder {
-    return new ParticleContractBuilder(
+  public build(
+    particleClass: Particle<TInstance, TArgs>
+  ): ParticleContractBuilder<TInstance, TArgs> {
+    return new ParticleContractBuilder<TInstance, TArgs>(
       this.parent,
       this.eventName,
       this.particleContract.when,
@@ -33,8 +35,8 @@ export class GatewayBuilder {
   }
 
   public use(
-    target: Particle<any> | Notation | QuantumPointer
-  ): InteractionBuilder {
+    target: Particle<any> | Notation | QuantumPointer<TInstance, TArgs>
+  ): InteractionBuilder<TInstance, TArgs> {
     // Cria o builder específico e já pré-configura o evento 'upon' e o alvo 'use'.
     return new InteractionBuilder(this.parent, this.eventName).use(target);
   }

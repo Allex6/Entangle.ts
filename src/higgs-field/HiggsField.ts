@@ -6,8 +6,11 @@ import { Particle } from '../shared/types/Particles.types';
  * dependency injection container that manages object lifecycles and scopes.
  */
 export class HiggsField {
-  private readonly particles = new Map<Particle, any>();
-  private readonly factories = new Map<Particle | string, FactoryMap>();
+  private readonly particles = new Map<Particle<any, any[]>, any>();
+  private readonly factories = new Map<
+    Particle<any, any[]> | string,
+    FactoryMap
+  >();
 
   /**
    * Creates a new HiggsField, optionally linking it to a parent scope.
@@ -22,9 +25,9 @@ export class HiggsField {
    * @param factory The function that returns a new instance of the particle.
    * @param options Lifecycle options for the particle (e.g., scope).
    */
-  public register<T>(
-    particleClass: Particle<T> | string,
-    factory: () => T,
+  public register<TInstance, TArgs extends any[]>(
+    particleClass: Particle<TInstance, TArgs> | string,
+    factory: () => TInstance,
     options: ParticleOptions = { scope: 'singleton' }
   ): void {
     this.factories.set(particleClass, { factory, options });
@@ -37,7 +40,9 @@ export class HiggsField {
    * @returns An instance of the particle.
    * @throws {Error} If the particle is not registered in this scope or any parent scope.
    */
-  public get<T>(particleClass: Particle<T>): T {
+  public get<TInstance, TArgs extends any[]>(
+    particleClass: Particle<TInstance, TArgs>
+  ): TInstance {
     const registration = this.factories.get(particleClass);
     if (!registration) {
       throw new Error(`Particle ${particleClass.name} is not registered.`);
@@ -52,7 +57,7 @@ export class HiggsField {
       this.particles.set(particleClass, newInstance);
     }
 
-    return this.particles.get(particleClass) as T;
+    return this.particles.get(particleClass) as TInstance;
   }
 
   /**

@@ -5,7 +5,7 @@ import { Particle } from '../../shared/types/Particles.types';
 import { Callback } from '../../shared/types/Utils.types';
 import { Superposition } from '../Superposition';
 
-export class InteractionBuilder {
+export class InteractionBuilder<TInstance, TArgs extends any[]> {
   private readonly interaction: Partial<Interaction> = {};
 
   constructor(
@@ -16,7 +16,7 @@ export class InteractionBuilder {
   }
 
   public use<ParticleType>(
-    target: Particle<ParticleType> | Notation | QuantumPointer
+    target: Particle<ParticleType> | Notation | QuantumPointer<TInstance, TArgs>
   ): this {
     this.interaction.use = target;
     return this;
@@ -33,7 +33,7 @@ export class InteractionBuilder {
     return this;
   }
 
-  public then(callback: Callback): Superposition {
+  public then(callback?: Callback): Superposition {
     this.interaction.then = callback;
 
     if (!this.interaction.use || !this.interaction.call) {

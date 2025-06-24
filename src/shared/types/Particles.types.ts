@@ -20,7 +20,7 @@ export type Particle<
  */
 export interface ParticleCreation<
   TInstance = unknown,
-  TArgs extends any[] = unknown[]
+  TArgs extends unknown[] = unknown[]
 > {
   /**
    * The event that triggers the creation of the particle.

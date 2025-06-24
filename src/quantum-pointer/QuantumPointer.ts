@@ -14,7 +14,7 @@ import { Particle } from '../shared/types/Particles.types';
  *
  * @template T The expected type of the particle instance.
  */
-export class QuantumPointer<T = any> {
+export class QuantumPointer<TInstance, TArgs extends any[]> {
   /**
    * The constructor is private to enforce the use of the static `create` method,
    * leading to a cleaner and more declarative API.
@@ -22,7 +22,7 @@ export class QuantumPointer<T = any> {
    * @param scope The specific scope (HiggsField instance) to search within.
    */
   private constructor(
-    private readonly particleClass: Particle<T>,
+    private readonly particleClass: Particle<TInstance, TArgs>,
     private readonly scope: HiggsField
   ) {}
 
@@ -33,10 +33,10 @@ export class QuantumPointer<T = any> {
    * @param scope The specific scope (HiggsField instance) where the particle is expected to be.
    * @returns A new `QuantumPointer` instance.
    */
-  static create<T>(
-    particleClass: Particle<T>,
+  static create<TInstance, TArgs extends any[]>(
+    particleClass: Particle<TInstance, TArgs>,
     scope: HiggsField
-  ): QuantumPointer<T> {
+  ): QuantumPointer<TInstance, TArgs> {
     return new QuantumPointer(particleClass, scope);
   }
 
@@ -45,7 +45,7 @@ export class QuantumPointer<T = any> {
    * This is the "observation" that collapses the potential state into a concrete instance.
    * @returns The resolved particle instance.
    */
-  public get(): T {
+  public get(): TInstance {
     return this.scope.get(this.particleClass);
   }
 }

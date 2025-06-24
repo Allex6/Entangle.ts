@@ -3,8 +3,8 @@ import { Particle, ParticleCreation } from '../../shared/types/Particles.types';
 import { Callback } from '../../shared/types/Utils.types';
 import { Superposition } from '../Superposition';
 
-export class ParticleContractBuilder {
-  private readonly contract: Partial<ParticleCreation> = {};
+export class ParticleContractBuilder<TInstance, TArgs extends any[]> {
+  private readonly contract: Partial<ParticleCreation<TInstance, TArgs>> = {};
 
   constructor(
     private readonly parent: Superposition,
@@ -17,7 +17,7 @@ export class ParticleContractBuilder {
     this.contract.is = this._is;
   }
 
-  public build<ParticleType>(particleClass: Particle<ParticleType>): this {
+  public build(particleClass: Particle<TInstance, TArgs>): this {
     this.contract.build = particleClass;
     return this;
   }
@@ -27,12 +27,12 @@ export class ParticleContractBuilder {
     return this;
   }
 
-  public using(...args: unknown[]): this {
+  public using(...args: TArgs): this {
     this.contract.using = args;
     return this;
   }
 
-  public then(callback: Callback): Superposition {
+  public then(callback?: Callback): Superposition {
     // If both upon and build are missing, we cannot create a particle
     if (!this.contract.upon || !this.contract.build) {
       throw new Error('Missing required properties');
