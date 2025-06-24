@@ -1,4 +1,5 @@
 import { Aether } from '../aether';
+import { ErrorHandler } from '../errors/ErrorHandler';
 import { EventHorizon } from '../event-horizon/EventHorizon';
 import { HiggsField } from '../higgs-field/HiggsField';
 import { QuantumPointer } from '../quantum-pointer/QuantumPointer';
@@ -22,8 +23,9 @@ import { GatewayBuilder } from './builders/Gateway.builder';
  */
 export class Superposition {
   public readonly particlesContracts = new Map<number, ParticleCreation>();
-  public readonly contracts: ParticleCreation[] = [];
-  public readonly interactions: Interaction[] = [];
+  public readonly contracts: ParticleCreation<any, any>[] = [];
+  public readonly interactions: Interaction<any, any, any>[] = [];
+  private errorHandler: ErrorHandler = ErrorHandler.create();
 
   /**
    * @param aether The communication medium, responsible for event transport.
@@ -43,7 +45,7 @@ export class Superposition {
    * @returns A `GatewayBuilder` instance to continue defining the rule by choosing an
    * action (`.build()` or `.use()`).
    */
-  public upon(event: Event): GatewayBuilder {
+  public upon(event: Event): GatewayBuilder<any, any[]> {
     return new GatewayBuilder(this, event);
   }
 
@@ -107,29 +109,35 @@ export class Superposition {
 
     let particleInstance;
 
-    if (parsedArgs) {
-      context.register(
-        build,
-        () =>
-          new (build as new (...args: any[]) => Particle<any>)(...parsedArgs),
-        { persist: false, scope: 'singleton' }
-      );
+    try {
+      if (parsedArgs) {
+        context.register(
+          build,
+          () =>
+            new (build as new (...args: any[]) => Particle<any>)(...parsedArgs),
+          { persist: false, scope: 'singleton' }
+        );
 
-      particleInstance = new (build as new (...args: any[]) => Particle<any>)(
-        ...parsedArgs
-      );
-    } else {
-      context.register(
-        build,
-        () => new (build as new (...args: any[]) => Particle<any>)(),
-        { persist: false, scope: 'singleton' }
-      );
+        particleInstance = new (build as new (...args: any[]) => Particle<any>)(
+          ...parsedArgs
+        );
+      } else {
+        context.register(
+          build,
+          () => new (build as new (...args: any[]) => Particle<any>)(),
+          { persist: false, scope: 'singleton' }
+        );
 
-      particleInstance = new (build as new (...args: any[]) => Particle<any>)();
-    }
+        particleInstance = new (build as new (
+          ...args: any[]
+        ) => Particle<any>)();
+      }
 
-    if (then) {
-      then(particleInstance);
+      if (then) {
+        then(particleInstance);
+      }
+    } catch (err) {
+      this.errorHandler.handle(err);
     }
   }
 
@@ -138,7 +146,9 @@ export class Superposition {
    * This method is intended to be called by a builder.
    * @internal
    */
-  public addContract(contract: ParticleCreation): this {
+  public addContract<TInstance, TArgs extends any[]>(
+    contract: ParticleCreation<TInstance, TArgs>
+  ): this {
     const { upon } = contract;
 
     this.aether.once(upon, (...args: any[]) => {
@@ -156,7 +166,9 @@ export class Superposition {
    * This method is intended to be called by a builder.
    * @internal
    */
-  public addInteraction(interaction: Interaction): this {
+  public addInteraction<TInstance, TArgs extends any[]>(
+    interaction: Interaction<TInstance, TArgs>
+  ): this {
     this.interactions.push(interaction);
 
     const { upon } = interaction;
@@ -182,7 +194,7 @@ export class Superposition {
     );
 
     for (const interaction of filteredInteractions) {
-      const { use: target, call, with: args, then } = interaction;
+      const { use: target } = interaction;
       let instance: unknown;
 
       if (target instanceof Notation) {
@@ -197,6 +209,14 @@ export class Superposition {
         throw new Error('Instance could not be resolved from target.');
       }
 
+      this.interact(interaction, instance);
+    }
+  }
+
+  private interact(interaction: Interaction, instance: unknown) {
+    const { use: target, call, with: args, then } = interaction;
+
+    try {
       const result = (instance as Record<string, (...args: any[]) => any>)[
         call
       ](...(args ?? []));
@@ -208,6 +228,13 @@ export class Superposition {
       if (!this.higgs.getParticleOptions(target as Particle)?.persist) {
         this.higgs.destroy(target as Particle);
       }
+    } catch (err) {
+      this.errorHandler.handle(err);
     }
+  }
+
+  public catch(errorHandler: ErrorHandler): this {
+    this.errorHandler = errorHandler;
+    return this;
   }
 }
