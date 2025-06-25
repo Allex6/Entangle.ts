@@ -37,7 +37,6 @@ export class GatewayBuilder<TInstance, TArgs extends any[] = any[]> {
   public use(
     target: Particle<any> | Notation | QuantumPointer<TInstance, TArgs>
   ): InteractionBuilder<TInstance, TArgs> {
-    // Cria o builder específico e já pré-configura o evento 'upon' e o alvo 'use'.
     return new InteractionBuilder(this.parent, this.eventName).use(target);
   }
 }

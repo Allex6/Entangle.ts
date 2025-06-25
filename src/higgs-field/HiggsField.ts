@@ -12,10 +12,6 @@ export class HiggsField {
     FactoryMap
   >();
 
-  /**
-   * Creates a new HiggsField, optionally linking it to a parent scope.
-   * @param parent The parent field, used for hierarchical dependency resolution.
-   */
   constructor(private readonly parent?: HiggsField) {}
 
   /**
