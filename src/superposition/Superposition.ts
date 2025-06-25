@@ -237,4 +237,8 @@ export class Superposition {
     this.errorHandler = errorHandler;
     return this;
   }
+
+  public chain(): Superposition {
+    return new Superposition(this.aether, this.higgs, this.horizon);
+  }
 }
