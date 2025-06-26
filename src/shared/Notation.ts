@@ -8,7 +8,7 @@
  * const name = notation.getData(data); // Returns 'Alex'
  */
 export class Notation {
-  constructor(public readonly _notation: string) {}
+  private constructor(public readonly _notation: string) {}
 
   /**
    * Creates a new instance of `Notation`.

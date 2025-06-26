@@ -1,5 +1,6 @@
 import { QuantumPointer } from '../../quantum-pointer/QuantumPointer';
 import { Notation } from '../../shared/Notation';
+import { Event } from '../../shared/types/Events.types';
 import { Interaction } from '../../shared/types/Interactions.types';
 import { Particle } from '../../shared/types/Particles.types';
 import { Callback } from '../../shared/types/Utils.types';
@@ -29,7 +30,16 @@ export class InteractionBuilder<TInstance, TArgs extends any[]> {
 
   public with(...args: unknown[]): this {
     this.interaction.with = args;
+    return this;
+  }
 
+  public emit(event: Event): this {
+    this.interaction.emit = event;
+    return this;
+  }
+
+  public requirements(events: Event[]): this {
+    this.interaction.requirements = events;
     return this;
   }
 
@@ -48,6 +58,8 @@ export class InteractionBuilder<TInstance, TArgs extends any[]> {
       call: this.interaction.call,
       with: this.interaction.with,
       then: this.interaction.then,
+      emit: this.interaction.emit,
+      requirements: this.interaction.requirements,
     });
 
     this.interaction.use = undefined;
@@ -55,6 +67,8 @@ export class InteractionBuilder<TInstance, TArgs extends any[]> {
     this.interaction.with = undefined;
     this.interaction.upon = undefined;
     this.interaction.then = undefined;
+    this.interaction.emit = undefined;
+    this.interaction.requirements = undefined;
 
     return this.parent;
   }
