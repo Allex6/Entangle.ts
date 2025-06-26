@@ -6,8 +6,8 @@ import { QuantumPointer } from '../quantum-pointer/QuantumPointer';
 import { Notation } from '../shared/Notation';
 import { Event } from '../shared/types/Events.types';
 import { Interaction } from '../shared/types/Interactions.types';
-import { Particle, ParticleCreation } from '../shared/types/Particles.types';
-import { Buildable, Callable } from '../shared/types/Utils.types';
+import { Particle, ParticleProperties } from '../shared/types/Particles.types';
+import { Callable } from '../shared/types/Utils.types';
 import { GatewayBuilder } from './builders/Gateway.builder';
 
 /**
@@ -26,8 +26,8 @@ import { GatewayBuilder } from './builders/Gateway.builder';
  * @param horizon The historical record, providing context of all past events.
  */
 export class Superposition {
-  public readonly particlesContracts = new Map<number, ParticleCreation>();
-  public readonly contracts: ParticleCreation<any, any>[] = [];
+  public readonly particlesContracts = new Map<number, ParticleProperties>();
+  public readonly contracts: ParticleProperties<any, any>[] = [];
   public readonly interactions: Interaction<any, any, any>[] = [];
   private errorHandler: ErrorHandler = ErrorHandler.create();
 
@@ -44,7 +44,7 @@ export class Superposition {
    * @returns A `GatewayBuilder` instance to continue defining the rule by choosing an
    * action (`.build()` or `.use()`).
    */
-  public upon(event: Event): GatewayBuilder<any, any[]> {
+  public upon(event: Event): GatewayBuilder {
     return new GatewayBuilder(this, event);
   }
 
@@ -69,7 +69,7 @@ export class Superposition {
    * Checks if a particle creation rule can be executed based on its `when` clause.
    * @internal
    */
-  private canCreateAParticle(contract: ParticleCreation): boolean {
+  private canCreateAParticle(contract: ParticleProperties): boolean {
     const { upon, when, is, requirements } = contract;
 
     // Checks if the 'when' clause is satisfied
@@ -101,8 +101,17 @@ export class Superposition {
    * other interactions.
    * @internal
    */
-  private createAParticle(contract: ParticleCreation): void {
-    const { upon, build, using, then, scope, emit } = contract;
+  private createAParticle(contract: ParticleProperties): void {
+    const {
+      upon,
+      build,
+      using,
+      then,
+      scope,
+      emit,
+      lifecycle,
+      destroyOnInteraction,
+    } = contract;
     const context = scope ?? this.higgs;
 
     const parsedArgs = using
@@ -120,12 +129,12 @@ export class Superposition {
       : [];
 
     try {
-      context.register(build, () => new (build as Buildable)(...parsedArgs), {
-        persist: false,
-        scope: 'singleton',
+      context.register(build, () => new (build as Particle)(...parsedArgs), {
+        destroyOnInteraction,
+        lifecycle,
       });
 
-      const particle = new (build as Buildable)(...parsedArgs);
+      const particle = new (build as Particle)(...parsedArgs);
 
       if (then) {
         then(particle);
@@ -144,8 +153,8 @@ export class Superposition {
    * This method is intended to be called by a builder.
    * @internal
    */
-  public addContract<TInstance, TArgs extends any[]>(
-    contract: ParticleCreation<TInstance, TArgs>
+  public addContract<TParticle, TArgs extends any[]>(
+    contract: ParticleProperties<TParticle, TArgs>
   ): this {
     const { upon } = contract;
 
@@ -164,9 +173,11 @@ export class Superposition {
    * This method is intended to be called by a builder.
    * @internal
    */
-  public addInteraction<TInstance, TArgs extends any[]>(
-    interaction: Interaction<TInstance, TArgs>
-  ): this {
+  public addInteraction<
+    TParticle,
+    TArgs extends unknown[],
+    TInteractionResult = unknown
+  >(interaction: Interaction<TParticle, TArgs, TInteractionResult>): this {
     this.interactions.push(interaction);
 
     const { upon } = interaction;
@@ -211,7 +222,14 @@ export class Superposition {
     }
   }
 
-  private interact(interaction: Interaction, instance: unknown) {
+  private interact<
+    TParticle,
+    TArgs extends unknown[],
+    TInteractionResult = unknown
+  >(
+    interaction: Interaction<TParticle, TArgs, TInteractionResult>,
+    instance: unknown
+  ) {
     const { use: target, call, with: args, then, emit } = interaction;
 
     try {
@@ -238,7 +256,9 @@ export class Superposition {
         this.aether.emit(emit, result);
       }
 
-      if (!this.higgs.getParticleOptions(target as Particle)?.persist) {
+      if (
+        !this.higgs.getParticleOptions(target as Particle)?.destroyOnInteraction
+      ) {
         this.higgs.destroy(target as Particle);
       }
     } catch (err) {

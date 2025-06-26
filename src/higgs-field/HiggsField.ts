@@ -1,4 +1,4 @@
-import { Particle } from '../shared/types/Particles.types';
+import { Particle, ParticleProperties } from '../shared/types/Particles.types';
 
 /**
  * The Higgs Field gives "mass" (substance) to particle classes,
@@ -21,10 +21,13 @@ export class HiggsField {
    * @param factory The function that returns a new instance of the particle.
    * @param options Lifecycle options for the particle (e.g., scope).
    */
-  public register<TInstance, TArgs extends any[]>(
-    particleClass: Particle<TInstance, TArgs> | string,
-    factory: () => TInstance,
-    options: ParticleOptions = { scope: 'singleton' }
+  public register<TParticle, TArgs extends any[]>(
+    particleClass: Particle<TParticle, TArgs> | string,
+    factory: () => TParticle,
+    options: ParticleOptions = {
+      lifecycle: 'singleton',
+      destroyOnInteraction: true,
+    }
   ): void {
     this.factories.set(particleClass, { factory, options });
   }
@@ -36,15 +39,18 @@ export class HiggsField {
    * @returns An instance of the particle.
    * @throws {Error} If the particle is not registered in this scope or any parent scope.
    */
-  public get<TInstance, TArgs extends any[]>(
-    particleClass: Particle<TInstance, TArgs>
-  ): TInstance {
-    const registration = this.factories.get(particleClass);
+  public get<TParticle, TArgs extends any[]>(
+    particleClass: Particle<TParticle, TArgs>
+  ): TParticle {
+    const registration = this.factories.has(particleClass)
+      ? this.factories.get(particleClass)
+      : this.parent?.factories.get(particleClass);
+
     if (!registration) {
       throw new Error(`Particle ${particleClass.name} is not registered.`);
     }
 
-    if (registration.options.scope === 'transient') {
+    if (registration.options.lifecycle === 'transient') {
       return registration.factory();
     }
 
@@ -53,7 +59,7 @@ export class HiggsField {
       this.particles.set(particleClass, newInstance);
     }
 
-    return this.particles.get(particleClass) as TInstance;
+    return this.particles.get(particleClass) as TParticle;
   }
 
   /**
@@ -85,18 +91,10 @@ export class HiggsField {
 /**
  * Options defining a particle's lifecycle and behavior within the HiggsField.
  */
-interface ParticleOptions {
-  /**
-   * Defines the lifecycle of the particle.
-   * 'singleton': A single instance is created and shared throughout the scope.
-   * 'transient': A new instance is created every time the particle is requested.
-   */
-  scope: 'singleton' | 'transient';
-  /**
-   * Defines if the particle should be destroyed after usage
-   */
-  persist?: boolean;
-}
+type ParticleOptions = Pick<
+  ParticleProperties,
+  'lifecycle' | 'destroyOnInteraction'
+>;
 
 interface FactoryMap {
   factory: () => any;

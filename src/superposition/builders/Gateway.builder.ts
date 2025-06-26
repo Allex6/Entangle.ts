@@ -1,22 +1,24 @@
-import { QuantumPointer } from '../../quantum-pointer/QuantumPointer';
-import { Notation } from '../../shared/Notation';
-import { Particle, ParticleCreation } from '../../shared/types/Particles.types';
+import { Target } from '../../shared/types/Interactions.types';
+import {
+  Particle,
+  ParticleProperties,
+} from '../../shared/types/Particles.types';
 import { Superposition } from '../Superposition';
 import { InteractionBuilder } from './Interaction.builder';
 import { ParticleContractBuilder } from './Particle.builder';
 
-export class GatewayBuilder<TInstance, TArgs extends any[] = any[]> {
-  private readonly particleContract: Partial<ParticleCreation> = {};
+export class GatewayBuilder {
+  private readonly particleContract: Partial<ParticleProperties> = {};
 
   constructor(
     private readonly parent: Superposition,
     private readonly eventName: string
   ) {}
 
-  public build(
-    particleClass: Particle<TInstance, TArgs>
-  ): ParticleContractBuilder<TInstance, TArgs> {
-    return new ParticleContractBuilder<TInstance, TArgs>(
+  public build<TParticle = unknown, TArgs extends unknown[] = unknown[]>(
+    particleClass: Particle<TParticle, TArgs>
+  ): ParticleContractBuilder<TParticle, TArgs> {
+    return new ParticleContractBuilder<TParticle, TArgs>(
       this.parent,
       this.eventName,
       this.particleContract.when,
@@ -34,9 +36,12 @@ export class GatewayBuilder<TInstance, TArgs extends any[] = any[]> {
     return this;
   }
 
-  public use(
-    target: Particle<any> | Notation | QuantumPointer<TInstance, TArgs>
-  ): InteractionBuilder<TInstance, TArgs> {
-    return new InteractionBuilder(this.parent, this.eventName).use(target);
+  public use<TParticle, TArgs extends unknown[]>(
+    target: Target<TParticle, TArgs>
+  ): InteractionBuilder<TParticle, TArgs> {
+    return new InteractionBuilder<TParticle, TArgs>(
+      this.parent,
+      this.eventName
+    ).use(target);
   }
 }
