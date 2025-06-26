@@ -1,42 +1,77 @@
 /**
- * A powerful utility class that encapsulates dot-notation strings (e.g., 'a.b.c')
- * and provides a safe way to retrieve nested values from objects.
+ * A type-safe, fluent builder for creating dot-notation accessors for nested objects.
+ * It provides compile-time safety and autocompletion for object properties and array indices.
  *
- * @example
- * const data = { user: { profile: { name: 'Alex' } } };
- * const notation = Notation.create('user.profile.name');
- * const name = notation.getData(data); // Returns 'Alex'
+ * @template TRoot The type of the root object where the search begins.
+ * @template TCurrent The type of the value at the current point in the notation chain.
  */
-export class Notation {
-  private constructor(public readonly _notation: string) {}
-
+export class Notation<TRoot, TCurrent> {
   /**
-   * Creates a new instance of `Notation`.
-   * @param notation The dot-notation string (e.g., 'user.profile.name').
+   * The internal notation string, built step-by-step.
+   * @private
    */
-  static create(notation: string): Notation {
-    return new Notation(notation);
+  private readonly _notation: string;
+
+  private constructor(currentNotation = '') {
+    this._notation = currentNotation;
   }
 
   /**
-   * @returns The raw notation string provided upon creation.
+   * Starts building a new type-safe notation path.
+   * @template TData The type of the data object this notation will operate on.
+   */
+  static create<TData>(): Notation<TData, TData> {
+    return new Notation<TData, TData>();
+  }
+
+  /**
+   * Appends a property access to the notation path.
+   * The compiler will only allow keys that exist on the current type.
+   * @param prop The key of the property to access.
+   * @returns A new Notation instance focused on the type of the accessed property.
+   */
+  public property<K extends keyof TCurrent>(
+    prop: K
+  ): Notation<TRoot, TCurrent[K]> {
+    const newNotation = this._notation
+      ? `${this._notation}.${String(prop)}`
+      : String(prop);
+    return new Notation<TRoot, TCurrent[K]>(newNotation);
+  }
+
+  /**
+   * Appends an index access to the notation path.
+   * This method should be used when the current focus is an array.
+   * @param i The index of the array to access.
+   * @returns A new Notation instance focused on the type of the array element.
+   */
+  public index(
+    i: number
+  ): Notation<TRoot, TCurrent extends (infer U)[] ? U : never> {
+    const newNotation = this._notation ? `${this._notation}.${i}` : String(i);
+    return new Notation(newNotation);
+  }
+
+  /**
+   * @returns The raw, built notation string (e.g., 'user.profile.name').
    */
   public get(): string {
     return this._notation;
   }
 
   /**
-   * Safely retrieves a nested value from a data object using the stored notation.
-   * @param data The object to retrieve the value from.
-   * @returns The resolved value, or `undefined` if any part of the path is not found.
+   * Safely executes the notation against a root data object.
+   * The return type is safely inferred from the chain of calls.
+   * @param data The root object to retrieve the value from. It must match the TRoot type.
+   * @returns The resolved value, or `undefined` if the path is not found.
    */
-  public getData(data: any): any {
+  public getData(data: TRoot): TCurrent | undefined {
     if (!this._notation) {
-      return data;
+      return data as unknown as TCurrent;
     }
 
     const parts = this._notation.split('.');
-    let currentValue = data;
+    let currentValue: any = data;
 
     for (const part of parts) {
       if (typeof currentValue !== 'object' || currentValue === null) {
@@ -44,7 +79,6 @@ export class Notation {
       }
       currentValue = currentValue[part];
     }
-
-    return currentValue;
+    return currentValue as TCurrent;
   }
 }
