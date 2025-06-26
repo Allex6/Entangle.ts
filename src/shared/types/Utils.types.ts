@@ -1,4 +1,5 @@
 import { QuantumPointer } from '../../quantum-pointer/QuantumPointer';
+import { Notation } from '../Notation';
 
 /**
  * Defines the shape of a generic callback function.
@@ -24,10 +25,10 @@ export type Callable<Args extends any[] = any[], Output = any> = Record<
 >;
 
 /**
- * Represents a value that can be provided directly or as a lazy-loaded QuantumPointer.
+ * Represents a value that can be provided directly, as a lazy-loaded QuantumPointer or a Notation.
  * @template T The direct type of the value.
  */
-export type Resolvable<T> = T | QuantumPointer<T, unknown[]>;
+export type Resolvable<T> = T | QuantumPointer<T, any[]> | Notation<T, T>;
 
 /**
  * Maps a tuple of argument types `TArgs` to a new tuple where each
