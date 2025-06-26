@@ -7,6 +7,7 @@ import { Notation } from '../shared/Notation';
 import { Event } from '../shared/types/Events.types';
 import { Interaction } from '../shared/types/Interactions.types';
 import { Particle, ParticleCreation } from '../shared/types/Particles.types';
+import { Buildable, Callable } from '../shared/types/Utils.types';
 import { GatewayBuilder } from './builders/Gateway.builder';
 
 /**
@@ -20,6 +21,9 @@ import { GatewayBuilder } from './builders/Gateway.builder';
  * particles within the HiggsField and its temporary scopes.
  *
  * @class Superposition
+ * @param aether The communication medium, responsible for event transport.
+ * @param higgs The foundational field, the main container for service particles.
+ * @param horizon The historical record, providing context of all past events.
  */
 export class Superposition {
   public readonly particlesContracts = new Map<number, ParticleCreation>();
@@ -27,11 +31,6 @@ export class Superposition {
   public readonly interactions: Interaction<any, any, any>[] = [];
   private errorHandler: ErrorHandler = ErrorHandler.create();
 
-  /**
-   * @param aether The communication medium, responsible for event transport.
-   * @param higgs The foundational field, the main container for service particles.
-   * @param horizon The historical record, providing context of all past events.
-   */
   constructor(
     private readonly aether: Aether,
     private readonly higgs: HiggsField,
@@ -71,7 +70,7 @@ export class Superposition {
    * @internal
    */
   private canCreateAParticle(contract: ParticleCreation): boolean {
-    const { upon, when, is } = contract;
+    const { upon, when, is, requirements } = contract;
 
     // Checks if the 'when' clause is satisfied
     if (typeof when !== 'undefined') {
@@ -79,6 +78,17 @@ export class Superposition {
       const parsedData = Notation.create(when).getData(data);
       if (parsedData !== is) {
         return false;
+      }
+    }
+
+    // Checks if the requirements are satisfied.
+    // If not, nothing happens
+    if (requirements?.length) {
+      for (const event of requirements) {
+        const eventOcurred = this.horizon.query().from(event).get();
+        if (eventOcurred === undefined) {
+          return false;
+        }
       }
     }
 
@@ -92,49 +102,37 @@ export class Superposition {
    * @internal
    */
   private createAParticle(contract: ParticleCreation): void {
-    const { upon, build, using, then, scope } = contract;
+    const { upon, build, using, then, scope, emit } = contract;
     const context = scope ?? this.higgs;
 
-    const parsedArgs = using?.map((arg) => {
-      if (arg instanceof Notation) {
-        return arg.getData(this.horizon.query().from(upon).get());
-      }
+    const parsedArgs = using
+      ? using.map((arg) => {
+          if (arg instanceof Notation) {
+            return arg.getData(this.horizon.query().from(upon).get());
+          }
 
-      if (arg instanceof QuantumPointer) {
-        return arg.get();
-      }
+          if (arg instanceof QuantumPointer) {
+            return arg.get();
+          }
 
-      return arg;
-    });
-
-    let particleInstance;
+          return arg;
+        })
+      : [];
 
     try {
-      if (parsedArgs) {
-        context.register(
-          build,
-          () =>
-            new (build as new (...args: any[]) => Particle<any>)(...parsedArgs),
-          { persist: false, scope: 'singleton' }
-        );
+      context.register(build, () => new (build as Buildable)(...parsedArgs), {
+        persist: false,
+        scope: 'singleton',
+      });
 
-        particleInstance = new (build as new (...args: any[]) => Particle<any>)(
-          ...parsedArgs
-        );
-      } else {
-        context.register(
-          build,
-          () => new (build as new (...args: any[]) => Particle<any>)(),
-          { persist: false, scope: 'singleton' }
-        );
-
-        particleInstance = new (build as new (
-          ...args: any[]
-        ) => Particle<any>)();
-      }
+      const particle = new (build as Buildable)(...parsedArgs);
 
       if (then) {
-        then(particleInstance);
+        then(particle);
+      }
+
+      if (emit) {
+        this.aether.emit(emit, particle);
       }
     } catch (err) {
       this.errorHandler.handle(err);
@@ -214,15 +212,30 @@ export class Superposition {
   }
 
   private interact(interaction: Interaction, instance: unknown) {
-    const { use: target, call, with: args, then } = interaction;
+    const { use: target, call, with: args, then, emit } = interaction;
 
     try {
-      const result = (instance as Record<string, (...args: any[]) => any>)[
-        call
-      ](...(args ?? []));
+      const _args = [];
+
+      if (args) {
+        for (const arg of args) {
+          if (arg instanceof Notation) {
+            _args.push(arg.getData(this.horizon.query().get()));
+            continue;
+          }
+
+          _args.push(arg);
+        }
+      }
+
+      const result = (instance as Callable)[call](..._args);
 
       if (then) {
         then(result);
+      }
+
+      if (emit) {
+        this.aether.emit(emit, result);
       }
 
       if (!this.higgs.getParticleOptions(target as Particle)?.persist) {
