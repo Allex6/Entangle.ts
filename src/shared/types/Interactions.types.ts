@@ -15,9 +15,9 @@ import { Callback } from './Utils.types';
  * @template TResult The return type of the method to be called.
  */
 export interface Interaction<
-  TParticle = unknown,
-  TArgs extends unknown[] = unknown[],
-  TResult = unknown
+  TParticle = any,
+  TArgs extends any[] = any[],
+  TResult = any
 > {
   /**
    * The event that triggers this interaction.
@@ -27,7 +27,7 @@ export interface Interaction<
    * The target particle for the interaction. Can be a reference to a service class,
    * a notation to data in an event payload, or a pointer to a particle in a temporary scope.
    */
-  use: Particle<TParticle> | Notation | QuantumPointer;
+  use: Particle<TParticle> | Notation | QuantumPointer<TParticle, TArgs>;
   /**
    * The name of the method to be invoked on the target particle instance.
    */
@@ -41,4 +41,13 @@ export interface Interaction<
    * of the method call as its argument.
    */
   then?: Callback<[TResult], void>;
+  /**
+   * Defines the event that should be issued after the interaction.
+   * It will contain the interaction result as an argument.
+   */
+  emit?: Event;
+  /**
+   * Represents a list of events that must have happened in order to allow the intended interaction.
+   */
+  requirements?: Event[];
 }

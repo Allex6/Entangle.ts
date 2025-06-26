@@ -54,4 +54,13 @@ export interface ParticleCreation<
    * particle instance will be stored.
    */
   scope?: HiggsField;
+  /**
+   * Defines the event that should be issued after the particle creation.
+   * It will contain the particle itself as argument.
+   */
+  emit?: Event;
+  /**
+   * Represents a list of events that must have happened in order to allow the creation of the particle.
+   */
+  requirements?: Event[];
 }
