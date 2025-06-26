@@ -1,25 +1,25 @@
 import { HiggsField } from '../../higgs-field/HiggsField';
 import { Event } from './Events.types';
-import { Callback } from './Utils.types';
+import { Callback, ResolvableArgs } from './Utils.types';
 
 /**
  * Represents a constructable class in our universe (a "Particle").
- * @template TInstance The type of the instance created by the class.
+ * @template TParticle The type of the instance created by the class.
  * @template TArgs A tuple type representing the constructor's arguments.
  */
 export type Particle<
-  TInstance = unknown,
+  TParticle = unknown,
   TArgs extends unknown[] = unknown[]
-> = new (...args: TArgs) => TInstance;
+> = new (...args: TArgs) => TParticle;
 
 /**
  * Represents a blueprint (contract) for creating a dynamic particle.
  * It declaratively defines the trigger, conditions, and dependencies for instantiation.
- * @template TInstance The type of the instance to be built.
+ * @template TParticle The type of the instance to be built.
  * @template TArgs The tuple type for the constructor arguments of the instance.
  */
-export interface ParticleCreation<
-  TInstance = unknown,
+export interface ParticleProperties<
+  TParticle = unknown,
   TArgs extends unknown[] = unknown[]
 > {
   /**
@@ -38,17 +38,17 @@ export interface ParticleCreation<
   /**
    * The particle class to be instantiated.
    */
-  build: Particle<TInstance, TArgs>;
+  build: Particle<TParticle, TArgs>;
   /**
    * An array of arguments to be passed to the particle's constructor.
    * The types must match the constructor's signature.
    */
-  using?: TArgs;
+  using?: ResolvableArgs<TArgs>;
   /**
    * A callback that will be invoked after the particle is created,
    * receiving the new instance as its argument.
    */
-  then?: Callback<[TInstance], void>;
+  then?: Callback<[TParticle], void>;
   /**
    * Defines the temporary scope where the newly created
    * particle instance will be stored.
@@ -63,4 +63,19 @@ export interface ParticleCreation<
    * Represents a list of events that must have happened in order to allow the creation of the particle.
    */
   requirements?: Event[];
+  /**
+   * Defines the lifecycle of the particle.
+   * 'singleton': A single instance is created and shared throughout the scope.
+   * 'transient': A new instance is created every time the particle is requested.
+   */
+  lifecycle: ParticleLifecycle;
+  /**
+   * Defines if the particle should be destroyed after usage
+   */
+  destroyOnInteraction?: boolean;
 }
+
+/**
+ * Represents the lifecycle of the particle.
+ */
+export type ParticleLifecycle = 'singleton' | 'transient';

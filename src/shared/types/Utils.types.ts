@@ -1,4 +1,4 @@
-import { Particle } from './Particles.types';
+import { QuantumPointer } from '../../quantum-pointer/QuantumPointer';
 
 /**
  * Defines the shape of a generic callback function.
@@ -24,9 +24,16 @@ export type Callable<Args extends any[] = any[], Output = any> = Record<
 >;
 
 /**
- * Represents a buildable object
+ * Represents a value that can be provided directly or as a lazy-loaded QuantumPointer.
+ * @template T The direct type of the value.
  */
-export type Buildable<
-  TInstance = unknown,
-  TArgs extends unknown[] = unknown[]
-> = new (...args: TArgs) => Particle<TInstance>;
+export type Resolvable<T> = T | QuantumPointer<T, unknown[]>;
+
+/**
+ * Maps a tuple of argument types `TArgs` to a new tuple where each
+ * element can be its direct type or a `Resolvable` version of it.
+ * @template TArgs The original tuple of argument types.
+ */
+export type ResolvableArgs<TArgs extends unknown[]> = {
+  [K in keyof TArgs]: Resolvable<TArgs[K]>;
+};
