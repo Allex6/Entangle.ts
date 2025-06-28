@@ -4,7 +4,7 @@ import { QuantumPointer } from '../../quantum-pointer/QuantumPointer'; // ou Sco
 import { Notation } from '../Notation';
 import { Event } from './Events.types';
 import { Particle } from './Particles.types';
-import { Callback } from './Utils.types';
+import { Callback, MethodKeys } from './Utils.types';
 
 /**
  * Represents a blueprint for executing a method on a particle.
@@ -27,11 +27,11 @@ export interface Interaction<TParticle, TArgs extends unknown[], TResult> {
   /**
    * The name of the method to be invoked on the target particle instance.
    */
-  call: string;
+  call: MethodKeys<TParticle>;
   /**
    * An array of arguments to be passed to the invoked method.
    */
-  with?: TArgs;
+  with?: unknown[];
   /**
    * A callback that will be invoked after the interaction, receiving the result
    * of the method call as its argument.
@@ -50,5 +50,5 @@ export interface Interaction<TParticle, TArgs extends unknown[], TResult> {
 
 export type Target<TParticle, TArgs extends unknown[]> =
   | Particle<TParticle, TArgs>
-  | Notation
+  | Notation<TArgs, TArgs>
   | QuantumPointer<TParticle, TArgs>;

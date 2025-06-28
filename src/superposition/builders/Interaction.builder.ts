@@ -1,18 +1,23 @@
 import { Event } from '../../shared/types/Events.types';
 import { Interaction, Target } from '../../shared/types/Interactions.types';
-import { Callback } from '../../shared/types/Utils.types';
+import { Callback, MethodKeys } from '../../shared/types/Utils.types';
 import { Superposition } from '../Superposition';
 
-export class InteractionBuilder<TParticle, TArgs extends unknown[]> {
+export class InteractionBuilder<
+  TParticle,
+  TArgs extends unknown[],
+  TMethodName extends MethodKeys<TParticle> | null = null
+> {
   private readonly interaction: Partial<
     Interaction<TParticle, TArgs, unknown>
   > = {};
 
   constructor(
     private readonly parent: Superposition,
-    private readonly event: string
+    private readonly event: Event,
+    initialInteraction: Partial<Interaction<TParticle, TArgs, unknown>> = {}
   ) {
-    this.interaction.upon = this.event;
+    this.interaction = { ...initialInteraction, upon: this.event };
   }
 
   public use(target: Target<TParticle, TArgs>): this {
@@ -20,12 +25,29 @@ export class InteractionBuilder<TParticle, TArgs extends unknown[]> {
     return this;
   }
 
-  public call(method: string): this {
-    this.interaction.call = method;
-    return this;
+  /**
+   * Specifies the method to be called on the target particle.
+   * @param method The name of a method that exists on the target particle.
+   * @returns A NEW, more specific, InteractionBuilder instance.
+   */
+  public call<TNewMethodName extends MethodKeys<TParticle>>(
+    method: TNewMethodName
+  ): InteractionBuilder<TParticle, TArgs, TNewMethodName> {
+    return new InteractionBuilder(this.parent, this.event, {
+      ...this.interaction,
+      call: method,
+    });
   }
 
-  public with(...args: TArgs): this {
+  /**
+   * Provides the arguments for the method specified in `.call()`.
+   * The arguments are strongly typed based on the chosen method.
+   */
+  public with(
+    ...args: TMethodName extends MethodKeys<TParticle>
+      ? Parameters<Extract<TParticle[TMethodName], (...args: any) => any>>
+      : never
+  ): this {
     this.interaction.with = args;
     return this;
   }

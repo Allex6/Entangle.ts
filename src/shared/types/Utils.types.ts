@@ -38,3 +38,11 @@ export type Resolvable<T> = T | QuantumPointer<T, any[]> | Notation<any, T>;
 export type ResolvableArgs<TArgs extends unknown[]> = {
   [K in keyof TArgs]: Resolvable<TArgs[K]>;
 };
+
+/**
+ * A utility type that extracts all keys from an object `T`
+ * whose values are functions (methods).
+ */
+export type MethodKeys<T> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T];
