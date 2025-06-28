@@ -28,7 +28,7 @@ export type Callable<Args extends any[] = any[], Output = any> = Record<
  * Represents a value that can be provided directly, as a lazy-loaded QuantumPointer or a Notation.
  * @template T The direct type of the value.
  */
-export type Resolvable<T> = T | QuantumPointer<T, any[]> | Notation<T, T>;
+export type Resolvable<T> = T | QuantumPointer<T, any[]> | Notation<any, T>;
 
 /**
  * Maps a tuple of argument types `TArgs` to a new tuple where each
