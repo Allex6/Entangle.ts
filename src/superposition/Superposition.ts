@@ -7,7 +7,7 @@ import { Notation } from '../shared/Notation';
 import { CausalityLog, Event } from '../shared/types/Events.types';
 import { Interaction } from '../shared/types/Interactions.types';
 import { Particle, ParticleProperties } from '../shared/types/Particles.types';
-import { Callable } from '../shared/types/Utils.types';
+import { MethodKeys } from '../shared/types/Utils.types';
 import { GatewayBuilder } from './builders/Gateway.builder';
 
 /**
@@ -174,10 +174,10 @@ export class Superposition {
    * @internal
    */
   public addInteraction<
-    TParticle,
+    TParticle extends object,
     TArgs extends unknown[],
-    TInteractionResult = unknown
-  >(interaction: Interaction<TParticle, TArgs, TInteractionResult>): this {
+    TMethodName extends MethodKeys<TParticle>
+  >(interaction: Interaction<TParticle, TArgs, TMethodName>): this {
     this.interactions.push(interaction);
 
     const { upon } = interaction;
@@ -197,38 +197,42 @@ export class Superposition {
    * Checks for and executes all interaction rules triggered by a specific event.
    * @internal
    */
-  private checkForParticlesInteractions(event: string) {
+  private checkForParticlesInteractions<
+    TParticle extends object,
+    TArgs extends unknown[],
+    TMethodName extends MethodKeys<TParticle>
+  >(event: string) {
     const filteredInteractions = this.interactions.filter(
       (i) => i.upon === event
     );
 
     for (const interaction of filteredInteractions) {
       const { use: target } = interaction;
-      let instance: unknown;
+      let instance: undefined | TParticle;
 
       if (target instanceof Notation) {
         instance = this.horizon.query().using(target.get()).get();
       } else if (target instanceof QuantumPointer) {
         instance = target.get();
       } else {
-        instance = this.higgs.get(target as Particle);
+        instance = this.higgs.get<TParticle, unknown[]>(target);
       }
 
       if (!instance) {
         throw new Error('Instance could not be resolved from target.');
       }
 
-      this.interact(interaction, instance);
+      this.interact<TParticle, TArgs, TMethodName>(interaction, instance);
     }
   }
 
   private interact<
-    TParticle,
+    TParticle extends object,
     TArgs extends unknown[],
-    TInteractionResult = unknown
+    TMethodName extends MethodKeys<TParticle>
   >(
-    interaction: Interaction<TParticle, TArgs, TInteractionResult>,
-    instance: unknown
+    interaction: Interaction<TParticle, TArgs, TMethodName>,
+    instance: TParticle
   ) {
     const { use: target, call, with: args, then, emit } = interaction;
 
@@ -246,14 +250,26 @@ export class Superposition {
         }
       }
 
-      const result = (instance as Callable)[call](..._args);
+      const methodToCall = (instance as any)[call];
 
-      if (then) {
-        then(result);
-      }
+      if (typeof methodToCall === 'function') {
+        const result = methodToCall.bind(instance)(..._args);
 
-      if (emit) {
-        this.aether.emit(emit, result);
+        if (then) {
+          Promise.resolve(result).then((res) => then(res));
+        }
+
+        if (emit) {
+          this.aether.emit(emit, result);
+        }
+      } else {
+        throw new Error(
+          `Method "${String(
+            call
+          )}" does not exist or is not a function on particle "${
+            instance.constructor.name
+          }".`
+        );
       }
 
       if (

@@ -4,7 +4,7 @@ import { QuantumPointer } from '../../quantum-pointer/QuantumPointer'; // ou Sco
 import { Notation } from '../Notation';
 import { Event } from './Events.types';
 import { Particle } from './Particles.types';
-import { Callback, MethodKeys } from './Utils.types';
+import { Callback, MethodKeys, ResolvableArgs } from './Utils.types';
 
 /**
  * Represents a blueprint for executing a method on a particle.
@@ -14,7 +14,12 @@ import { Callback, MethodKeys } from './Utils.types';
  * @template TArgs A tuple type for the arguments of the method to be called.
  * @template TResult The return type of the method to be called.
  */
-export interface Interaction<TParticle, TArgs extends unknown[], TResult> {
+export interface Interaction<
+  TParticle extends object,
+  TArgs extends unknown[],
+  TMethodName extends MethodKeys<TParticle> = MethodKeys<TParticle>,
+  TResult = unknown
+> {
   /**
    * The event that triggers this interaction.
    */
@@ -27,11 +32,11 @@ export interface Interaction<TParticle, TArgs extends unknown[], TResult> {
   /**
    * The name of the method to be invoked on the target particle instance.
    */
-  call: MethodKeys<TParticle>;
+  call: TMethodName;
   /**
    * An array of arguments to be passed to the invoked method.
    */
-  with?: unknown[];
+  with?: ResolvableArgs<unknown[]>;
   /**
    * A callback that will be invoked after the interaction, receiving the result
    * of the method call as its argument.
@@ -50,5 +55,5 @@ export interface Interaction<TParticle, TArgs extends unknown[], TResult> {
 
 export type Target<TParticle, TArgs extends unknown[]> =
   | Particle<TParticle, TArgs>
-  | Notation<TArgs, TArgs>
+  | Notation<unknown, unknown>
   | QuantumPointer<TParticle, TArgs>;

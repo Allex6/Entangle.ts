@@ -37,7 +37,7 @@ export class GatewayBuilder {
     return this;
   }
 
-  public use<TParticle, TArgs extends unknown[]>(
+  public use<TParticle extends object, TArgs extends unknown[]>(
     target: Target<TParticle, TArgs>
   ): InteractionBuilder<TParticle, TArgs> {
     return new InteractionBuilder<TParticle, TArgs>(

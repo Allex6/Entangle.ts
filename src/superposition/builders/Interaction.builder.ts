@@ -1,21 +1,24 @@
 import { Event } from '../../shared/types/Events.types';
 import { Interaction, Target } from '../../shared/types/Interactions.types';
-import { Callback, MethodKeys } from '../../shared/types/Utils.types';
+import {
+  Callback,
+  MethodKeys,
+  ResolvableArgs,
+} from '../../shared/types/Utils.types';
 import { Superposition } from '../Superposition';
 
 export class InteractionBuilder<
-  TParticle,
+  TParticle extends object,
   TArgs extends unknown[],
   TMethodName extends MethodKeys<TParticle> | null = null
 > {
-  private readonly interaction: Partial<
-    Interaction<TParticle, TArgs, unknown>
-  > = {};
+  private readonly interaction: Partial<Interaction<TParticle, TArgs, any>> =
+    {};
 
   constructor(
     private readonly parent: Superposition,
-    private readonly event: Event,
-    initialInteraction: Partial<Interaction<TParticle, TArgs, unknown>> = {}
+    private readonly event: string,
+    initialInteraction: Partial<Interaction<TParticle, TArgs, any>> = {}
   ) {
     this.interaction = { ...initialInteraction, upon: this.event };
   }
@@ -45,7 +48,9 @@ export class InteractionBuilder<
    */
   public with(
     ...args: TMethodName extends MethodKeys<TParticle>
-      ? Parameters<Extract<TParticle[TMethodName], (...args: any) => any>>
+      ? ResolvableArgs<
+          Parameters<Extract<TParticle[TMethodName], (...args: any) => any>>
+        >
       : never
   ): this {
     this.interaction.with = args;
