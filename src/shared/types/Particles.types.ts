@@ -1,4 +1,5 @@
 import { HiggsField } from '../../higgs-field/HiggsField';
+import { NotationString } from '../Notation';
 import { Event } from './Events.types';
 import { Callback, ResolvableArgs } from './Utils.types';
 
@@ -30,7 +31,7 @@ export interface ParticleProperties<
    * A notation (e.g., 'a.b.c') pointing to data within the event payload,
    * used as a condition to allow particle creation.
    */
-  when?: string;
+  when?: NotationString;
   /**
    * The value to be checked against the data retrieved via the 'when' clause.
    */

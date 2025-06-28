@@ -6,7 +6,7 @@ import { QueryBuilder } from './builders/Query.builder';
  * It holds a history of all past events and allows the search of it
  */
 export class EventHorizon {
-  public readonly causalityLogs: CausalityLog[] = [];
+  public readonly causalityLogs: CausalityLog<unknown[]>[] = [];
 
   /**
    * Adds a new event record to the causality log.
@@ -14,10 +14,7 @@ export class EventHorizon {
    * @param event The name of the event that occurred.
    * @param args The arguments that were passed when the event was emitted.
    */
-  public add<EventArgs extends unknown[] = unknown[]>(
-    event: Event,
-    ...args: EventArgs
-  ): this {
+  public add<TArgs extends unknown[]>(event: Event, ...args: TArgs): this {
     this.causalityLogs.push({ event, args });
     return this;
   }

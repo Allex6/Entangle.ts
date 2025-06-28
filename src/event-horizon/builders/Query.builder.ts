@@ -7,7 +7,7 @@ export class QueryBuilder {
   private argClause?: number;
   private whereClause?: unknown;
 
-  constructor(private readonly causalityLogs: CausalityLog[]) {}
+  constructor(private readonly causalityLogs: CausalityLog<unknown[]>[]) {}
 
   /**
    * Filters the search to only include logs from a specific event.
@@ -55,7 +55,7 @@ export class QueryBuilder {
    * @template T The expected type of the returned data.
    * @returns The first piece of data that matches all query clauses, or `undefined` if no match is found.
    */
-  public get<T>(): T | undefined {
+  public get<TArgs = unknown>(): TArgs | undefined {
     // Filter the past events
     const potentialDataPoints = [...this.causalityLogs]
       .reverse()
@@ -65,7 +65,9 @@ export class QueryBuilder {
       );
 
     const notationInstance = this.usingClause
-      ? Notation.create(this.usingClause)
+      ? Notation.create<TArgs>()
+          .index(this.argClause ?? 0)
+          .property(this.usingClause as any)
       : null;
 
     for (const data of potentialDataPoints) {
@@ -75,11 +77,11 @@ export class QueryBuilder {
 
       // Parses the data using the Notation utility
       const parsedData = notationInstance
-        ? notationInstance.getData(data)
+        ? notationInstance.getData(data as any)
         : data;
 
       if (this.whereClause === undefined || parsedData === this.whereClause) {
-        return parsedData as T;
+        return parsedData as TArgs;
       }
     }
 

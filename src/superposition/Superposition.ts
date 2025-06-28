@@ -4,7 +4,7 @@ import { EventHorizon } from '../event-horizon/EventHorizon';
 import { HiggsField } from '../higgs-field/HiggsField';
 import { QuantumPointer } from '../quantum-pointer/QuantumPointer';
 import { Notation } from '../shared/Notation';
-import { Event } from '../shared/types/Events.types';
+import { CausalityLog, Event } from '../shared/types/Events.types';
 import { Interaction } from '../shared/types/Interactions.types';
 import { Particle, ParticleProperties } from '../shared/types/Particles.types';
 import { Callable } from '../shared/types/Utils.types';
@@ -74,7 +74,7 @@ export class Superposition {
 
     // Checks if the 'when' clause is satisfied
     if (typeof when !== 'undefined') {
-      const data = this.horizon.query().from(upon).get();
+      const data = this.horizon.query().from(upon).get<CausalityLog<unknown>>();
       const parsedData = Notation.create(when).getData(data);
       if (parsedData !== is) {
         return false;

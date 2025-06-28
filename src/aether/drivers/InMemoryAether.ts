@@ -21,7 +21,7 @@ export class InMemoryAether extends Aether {
   public once(event: string, callback: Callback): void {
     this._emitter.once(event, callback);
   }
-  public emit(event: string, ...args: unknown[]): void {
+  public emit<TArgs extends unknown[]>(event: string, ...args: TArgs): void {
     this._emitter.emit(event, ...args);
   }
 }

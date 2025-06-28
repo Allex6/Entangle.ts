@@ -1,3 +1,4 @@
+import { NotationString } from '../../shared/Notation';
 import { Target } from '../../shared/types/Interactions.types';
 import {
   Particle,
@@ -26,7 +27,7 @@ export class GatewayBuilder {
     ).build(particleClass);
   }
 
-  public when(notation: string): this {
+  public when(notation: NotationString): this {
     this.particleContract.when = notation;
     return this;
   }

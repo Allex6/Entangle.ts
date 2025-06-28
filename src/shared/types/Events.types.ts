@@ -8,7 +8,7 @@ export type Event = string;
  * to the arguments it was emitted with.
  * @template T A tuple type representing the structure of the event's arguments.
  */
-export interface CausalityLog<Args extends unknown[] = unknown[]> {
+export interface CausalityLog<TArgs> {
   /**
    * The name of the event that occurred.
    */
@@ -16,5 +16,5 @@ export interface CausalityLog<Args extends unknown[] = unknown[]> {
   /**
    * The arguments that were passed when the event was emitted.
    */
-  args: Args;
+  args: TArgs;
 }

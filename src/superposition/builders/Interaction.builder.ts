@@ -1,13 +1,12 @@
-import { QuantumPointer } from '../../quantum-pointer/QuantumPointer';
-import { Notation } from '../../shared/Notation';
 import { Event } from '../../shared/types/Events.types';
-import { Interaction } from '../../shared/types/Interactions.types';
-import { Particle } from '../../shared/types/Particles.types';
+import { Interaction, Target } from '../../shared/types/Interactions.types';
 import { Callback } from '../../shared/types/Utils.types';
 import { Superposition } from '../Superposition';
 
-export class InteractionBuilder<TInstance, TArgs extends any[]> {
-  private readonly interaction: Partial<Interaction> = {};
+export class InteractionBuilder<TParticle, TArgs extends unknown[]> {
+  private readonly interaction: Partial<
+    Interaction<TParticle, TArgs, unknown>
+  > = {};
 
   constructor(
     private readonly parent: Superposition,
@@ -16,9 +15,7 @@ export class InteractionBuilder<TInstance, TArgs extends any[]> {
     this.interaction.upon = this.event;
   }
 
-  public use<ParticleType>(
-    target: Particle<ParticleType> | Notation | QuantumPointer<TInstance, TArgs>
-  ): this {
+  public use(target: Target<TParticle, TArgs>): this {
     this.interaction.use = target;
     return this;
   }
@@ -28,7 +25,7 @@ export class InteractionBuilder<TInstance, TArgs extends any[]> {
     return this;
   }
 
-  public with(...args: unknown[]): this {
+  public with(...args: TArgs): this {
     this.interaction.with = args;
     return this;
   }
@@ -61,14 +58,6 @@ export class InteractionBuilder<TInstance, TArgs extends any[]> {
       emit: this.interaction.emit,
       requirements: this.interaction.requirements,
     });
-
-    this.interaction.use = undefined;
-    this.interaction.call = undefined;
-    this.interaction.with = undefined;
-    this.interaction.upon = undefined;
-    this.interaction.then = undefined;
-    this.interaction.emit = undefined;
-    this.interaction.requirements = undefined;
 
     return this.parent;
   }
