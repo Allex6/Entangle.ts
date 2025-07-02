@@ -51,9 +51,10 @@ export class Superposition {
   /**
    * Check if there are any particles that can be created
    */
-  private checkForParticlesCreation(event: string) {
+  private checkForParticlesCreation(event: string, entanglement: string) {
     const filteredContracts = this.contracts.filter(
-      (contract) => contract.upon === event
+      (contract) =>
+        contract.upon === event && contract.entanglement === entanglement
     );
 
     for (const contract of filteredContracts) {
@@ -156,12 +157,19 @@ export class Superposition {
   public addContract<TParticle, TArgs extends any[]>(
     contract: ParticleProperties<TParticle, TArgs>
   ): this {
-    const { upon } = contract;
+    const { upon, once } = contract;
+    const subscribeMethod = once ? 'once' : 'on';
 
-    this.aether.once(upon, (...args: any[]) => {
+    this.aether[subscribeMethod](upon, (...args: any[]) => {
+      const entanglement = args.at(-1);
+
+      if (!entanglement) {
+        // TODO: some "lost" event happened
+      }
+
       this.horizon.add(upon, args);
-      this.checkForParticlesCreation(upon);
-      this.checkForParticlesInteractions(upon);
+      this.checkForParticlesCreation(upon, entanglement);
+      this.checkForParticlesInteractions(upon, entanglement);
     });
 
     this.contracts.push(contract);
@@ -180,13 +188,20 @@ export class Superposition {
   >(interaction: Interaction<TParticle, TArgs, TMethodName>): this {
     this.interactions.push(interaction);
 
-    const { upon } = interaction;
+    const { upon, once } = interaction;
+    const subscribeMethod = once ? 'once' : 'on';
 
     if (upon) {
-      this.aether.once(upon, (...args: any[]) => {
+      this.aether[subscribeMethod](upon, (...args: any[]) => {
+        const entanglement = args.at(-1);
+
+        if (!entanglement) {
+          // TODO: some "lost" event happened
+        }
+
         this.horizon.add(upon, args);
-        this.checkForParticlesCreation(upon);
-        this.checkForParticlesInteractions(upon);
+        this.checkForParticlesCreation(upon, entanglement);
+        this.checkForParticlesInteractions(upon, entanglement);
       });
     }
 
@@ -201,9 +216,9 @@ export class Superposition {
     TParticle extends object,
     TArgs extends unknown[],
     TMethodName extends MethodKeys<TParticle>
-  >(event: string) {
+  >(event: string, entanglement: string) {
     const filteredInteractions = this.interactions.filter(
-      (i) => i.upon === event
+      (i) => i.upon === event && i.entanglement === entanglement
     );
 
     for (const interaction of filteredInteractions) {
@@ -285,9 +300,5 @@ export class Superposition {
   public catch(errorHandler: ErrorHandler): this {
     this.errorHandler = errorHandler;
     return this;
-  }
-
-  public chain(): Superposition {
-    return new Superposition(this.aether, this.higgs, this.horizon);
   }
 }
