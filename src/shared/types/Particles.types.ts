@@ -28,6 +28,10 @@ export interface ParticleProperties<
    */
   upon: Event;
   /**
+   * Represents the quantum entanglement of this particle with ther rest of the system
+   */
+  entanglement: string;
+  /**
    * A notation (e.g., 'a.b.c') pointing to data within the event payload,
    * used as a condition to allow particle creation.
    */
@@ -74,6 +78,10 @@ export interface ParticleProperties<
    * Defines if the particle should be destroyed after usage
    */
   destroyOnInteraction?: boolean;
+  /**
+   * Defines if the event should be listened only once
+   */
+  once?: boolean;
 }
 
 /**

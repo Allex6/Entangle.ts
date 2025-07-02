@@ -25,6 +25,10 @@ export interface Interaction<
    */
   upon?: Event;
   /**
+   * Represents the quantum entanglement of this interaction with ther rest of the system
+   */
+  entanglement: string;
+  /**
    * The target particle for the interaction. Can be a reference to a service class,
    * a notation to data in an event payload, or a pointer to a particle in a temporary scope.
    */
@@ -51,6 +55,10 @@ export interface Interaction<
    * Represents a list of events that must have happened in order to allow the intended interaction.
    */
   requirements?: Event[];
+  /**
+   * Defines if the event should be listened only once
+   */
+  once?: boolean;
 }
 
 export type Target<TParticle, TArgs extends unknown[]> =
