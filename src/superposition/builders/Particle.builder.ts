@@ -68,9 +68,23 @@ export class ParticleContractBuilder<TParticle, TArgs extends unknown[]> {
     return this;
   }
 
+  public once(): this {
+    this.contract.once = true;
+    return this;
+  }
+
+  public entanglement(entanglement: string): this {
+    this.contract.entanglement = entanglement;
+    return this;
+  }
+
   public then(callback?: Callback<[TParticle]>): Superposition {
     // If both upon and build are missing, we cannot create a particle
-    if (!this.contract.upon || !this.contract.build) {
+    if (
+      !this.contract.upon ||
+      !this.contract.build ||
+      !this.contract.entanglement
+    ) {
       throw new Error('Missing required properties');
     }
 
@@ -88,6 +102,8 @@ export class ParticleContractBuilder<TParticle, TArgs extends unknown[]> {
       requirements: this.contract.requirements,
       lifecycle: this.contract.lifecycle ?? 'singleton',
       destroyOnInteraction: this.contract.destroyOnInteraction,
+      once: this.contract.once,
+      entanglement: this.contract.entanglement,
     });
 
     return this.parent;

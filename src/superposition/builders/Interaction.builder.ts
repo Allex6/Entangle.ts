@@ -67,10 +67,24 @@ export class InteractionBuilder<
     return this;
   }
 
+  public once(): this {
+    this.interaction.once = true;
+    return this;
+  }
+
+  public entanglement(entanglement: string): this {
+    this.interaction.entanglement = entanglement;
+    return this;
+  }
+
   public then(callback?: Callback): Superposition {
     this.interaction.then = callback;
 
-    if (!this.interaction.use || !this.interaction.call) {
+    if (
+      !this.interaction.use ||
+      !this.interaction.call ||
+      !this.interaction.entanglement
+    ) {
       throw new Error(
         'Invalid interaction provided. You must call both "use" and "call" methods before calling "with"'
       );
@@ -84,6 +98,8 @@ export class InteractionBuilder<
       then: this.interaction.then,
       emit: this.interaction.emit,
       requirements: this.interaction.requirements,
+      once: this.interaction.once,
+      entanglement: this.interaction.entanglement,
     });
 
     return this.parent;
