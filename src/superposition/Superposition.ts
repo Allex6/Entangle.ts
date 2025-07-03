@@ -6,7 +6,11 @@ import { QuantumPointer } from '../quantum-pointer/QuantumPointer';
 import { Notation } from '../shared/Notation';
 import { CausalityLog, Event } from '../shared/types/Events.types';
 import { Interaction } from '../shared/types/Interactions.types';
-import { Particle, ParticleProperties } from '../shared/types/Particles.types';
+import {
+  Boson,
+  Particle,
+  ParticleProperties,
+} from '../shared/types/Particles.types';
 import { MethodKeys } from '../shared/types/Utils.types';
 import { GatewayBuilder } from './builders/Gateway.builder';
 
@@ -113,6 +117,7 @@ export class Superposition {
       lifecycle,
       destroyOnInteraction,
       errorHandler,
+      entanglement,
     } = contract;
     const context = scope ?? this.higgs;
     const selectedErrorhandler = errorHandler ?? this.errorHandler;
@@ -144,7 +149,7 @@ export class Superposition {
       }
 
       if (emit) {
-        this.aether.emit(emit, particle);
+        this.aether.emit(emit, entanglement, particle);
       }
     } catch (err) {
       selectedErrorhandler?.handle(err, {
@@ -166,14 +171,9 @@ export class Superposition {
     const { upon, once } = contract;
     const subscribeMethod = once ? 'once' : 'on';
 
-    this.aether[subscribeMethod](upon, (...args: any[]) => {
-      const entanglement = args.at(-1);
-
-      if (!entanglement) {
-        // TODO: some "lost" event happened
-      }
-
-      this.horizon.add(upon, args);
+    this.aether[subscribeMethod](upon, (boson: Boson) => {
+      const { payload, entanglement } = boson;
+      this.horizon.add(upon, payload);
       this.checkForParticlesCreation(upon, entanglement);
       this.checkForParticlesInteractions(upon, entanglement);
     });
@@ -198,14 +198,10 @@ export class Superposition {
     const subscribeMethod = once ? 'once' : 'on';
 
     if (upon) {
-      this.aether[subscribeMethod](upon, (...args: any[]) => {
-        const entanglement = args.at(-1);
+      this.aether[subscribeMethod](upon, (boson: Boson) => {
+        const { payload, entanglement } = boson;
 
-        if (!entanglement) {
-          // TODO: some "lost" event happened
-        }
-
-        this.horizon.add(upon, args);
+        this.horizon.add(upon, payload);
         this.checkForParticlesCreation(upon, entanglement);
         this.checkForParticlesInteractions(upon, entanglement);
       });
