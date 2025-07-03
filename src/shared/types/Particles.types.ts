@@ -29,9 +29,9 @@ export interface ParticleProperties<
    */
   upon: Event;
   /**
-   * Represents the quantum entanglement of this particle with ther rest of the system
+   * Represents the quantum entanglement of this particle with the rest of the system
    */
-  entanglement: string;
+  entanglement: Entanglement;
   /**
    * A notation (e.g., 'a.b.c') pointing to data within the event payload,
    * used as a condition to allow particle creation.
@@ -93,3 +93,22 @@ export interface ParticleProperties<
  * Represents the lifecycle of the particle.
  */
 export type ParticleLifecycle = 'singleton' | 'transient';
+
+/**
+ * The quantum entanglement id, which represents the correlation between particles or interactions
+ */
+export type Entanglement = string;
+
+/**
+ * Represents the fundamental carrier of information for an event.
+ * In our physics analogy, the Boson is the force-carrying particle
+ * that holds the event's data and the entanglement ID, ensuring
+ * a correlated and traceable interaction.
+ *
+ * @template TData The type of the primary data being carried.
+ */
+export interface Boson<TData extends unknown[] = unknown[]> {
+  payload: TData;
+  entanglement: Entanglement;
+  timestamp: number;
+}

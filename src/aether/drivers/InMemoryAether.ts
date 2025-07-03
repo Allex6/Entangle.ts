@@ -1,6 +1,8 @@
 import EventEmitter from 'events';
 import { Aether } from '../Aether';
 import { Callback } from '../../shared/types/Utils.types';
+import { Boson, Entanglement } from '../../shared/types/Particles.types';
+import { Event } from '../../shared/types/Events.types';
 
 /**
  * An in-memory implementation of the Aether using Node.js's native EventEmitter.
@@ -15,13 +17,25 @@ import { Callback } from '../../shared/types/Utils.types';
 export class InMemoryAether extends Aether {
   private readonly _emitter = new EventEmitter();
 
-  public on(event: string, callback: Callback): void {
+  public on(event: Event, callback: Callback<[Boson]>): void {
     this._emitter.on(event, callback);
   }
-  public once(event: string, callback: Callback): void {
+
+  public once(event: Event, callback: Callback<[Boson]>): void {
     this._emitter.once(event, callback);
   }
-  public emit<TArgs extends unknown[]>(event: string, ...args: TArgs): void {
-    this._emitter.emit(event, ...args);
+
+  public emit<TArgs extends unknown[]>(
+    event: Event,
+    entanglement: Entanglement,
+    ...args: TArgs
+  ): void {
+    const boson: Boson = {
+      payload: args,
+      entanglement,
+      timestamp: Date.now(),
+    };
+
+    this._emitter.emit(event, boson);
   }
 }

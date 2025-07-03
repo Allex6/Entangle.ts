@@ -4,7 +4,7 @@ import { ErrorHandler } from '../../errors/ErrorHandler';
 import { QuantumPointer } from '../../quantum-pointer/QuantumPointer'; // ou ScopeRetriever
 import { Notation } from '../Notation';
 import { Event } from './Events.types';
-import { Particle } from './Particles.types';
+import { Entanglement, Particle } from './Particles.types';
 import { Callback, MethodKeys, ResolvableArgs } from './Utils.types';
 
 /**
@@ -28,7 +28,7 @@ export interface Interaction<
   /**
    * Represents the quantum entanglement of this interaction with ther rest of the system
    */
-  entanglement: string;
+  entanglement: Entanglement;
   /**
    * The target particle for the interaction. Can be a reference to a service class,
    * a notation to data in an event payload, or a pointer to a particle in a temporary scope.

@@ -1,4 +1,5 @@
 import { Event } from '../shared/types/Events.types';
+import { Boson, Entanglement } from '../shared/types/Particles.types';
 import { Callback } from '../shared/types/Utils.types';
 
 /**
@@ -14,17 +15,21 @@ export abstract class Aether {
    * @param event The name of the event to listen for.
    * @param callback The function to be executed when the event occurs.
    */
-  public abstract on(event: Event, callback: Callback): void;
+  public abstract on(event: Event, callback: Callback<[Boson]>): void;
   /**
    * Subscribes to an event for a single execution. The listener is automatically removed after the event occurs once.
    * @param event The name of the event to listen for.
    * @param callback The function to be executed when the event occurs for the first time.
    */
-  public abstract once(event: Event, callback: Callback): void;
+  public abstract once(event: Event, callback: Callback<[Boson]>): void;
   /**
    * Emits an event, propagating it through the Aether to all subscribed listeners.
    * @param event The name of the event to emit.
    * @param args The data or arguments to pass to the listeners' callback functions.
    */
-  public abstract emit(event: Event, ...args: unknown[]): void;
+  public abstract emit(
+    event: Event,
+    entanglement: Entanglement,
+    ...args: unknown[]
+  ): void;
 }
