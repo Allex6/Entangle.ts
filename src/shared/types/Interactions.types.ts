@@ -1,5 +1,6 @@
 // Em seu arquivo de tipos
 
+import { ErrorHandler } from '../../errors/ErrorHandler';
 import { QuantumPointer } from '../../quantum-pointer/QuantumPointer'; // ou ScopeRetriever
 import { Notation } from '../Notation';
 import { Event } from './Events.types';
@@ -59,6 +60,10 @@ export interface Interaction<
    * Defines if the event should be listened only once
    */
   once?: boolean;
+  /**
+   * Handle possible erros upon this interaction
+   */
+  errorHandler?: ErrorHandler;
 }
 
 export type Target<TParticle, TArgs extends unknown[]> =

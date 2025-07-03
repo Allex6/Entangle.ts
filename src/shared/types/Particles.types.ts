@@ -1,3 +1,4 @@
+import { ErrorHandler } from '../../errors/ErrorHandler';
 import { HiggsField } from '../../higgs-field/HiggsField';
 import { NotationString } from '../Notation';
 import { Event } from './Events.types';
@@ -82,6 +83,10 @@ export interface ParticleProperties<
    * Defines if the event should be listened only once
    */
   once?: boolean;
+  /**
+   * Handle possible erros upon this particle creation
+   */
+  errorHandler?: ErrorHandler;
 }
 
 /**

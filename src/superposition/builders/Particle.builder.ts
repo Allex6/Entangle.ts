@@ -1,3 +1,4 @@
+import { ErrorHandler } from '../../errors/ErrorHandler';
 import { HiggsField } from '../../higgs-field/HiggsField';
 import { NotationString } from '../../shared/Notation';
 import { Event } from '../../shared/types/Events.types';
@@ -75,6 +76,11 @@ export class ParticleContractBuilder<TParticle, TArgs extends unknown[]> {
 
   public entanglement(entanglement: string): this {
     this.contract.entanglement = entanglement;
+    return this;
+  }
+
+  public errorHandler(errorHandler: ErrorHandler): this {
+    this.contract.errorHandler = errorHandler;
     return this;
   }
 

@@ -1,3 +1,4 @@
+import { ErrorHandler } from '../../errors/ErrorHandler';
 import { Event } from '../../shared/types/Events.types';
 import { Interaction, Target } from '../../shared/types/Interactions.types';
 import {
@@ -74,6 +75,11 @@ export class InteractionBuilder<
 
   public entanglement(entanglement: string): this {
     this.interaction.entanglement = entanglement;
+    return this;
+  }
+
+  public errorHandler(errorHandler: ErrorHandler): this {
+    this.interaction.errorHandler = errorHandler;
     return this;
   }
 
