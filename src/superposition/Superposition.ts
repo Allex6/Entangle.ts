@@ -29,12 +29,12 @@ export class Superposition {
   public readonly particlesContracts = new Map<number, ParticleProperties>();
   public readonly contracts: ParticleProperties<any, any>[] = [];
   public readonly interactions: Interaction<any, any, any>[] = [];
-  private errorHandler: ErrorHandler = ErrorHandler.create();
 
   constructor(
     private readonly aether: Aether,
     private readonly higgs: HiggsField,
-    private readonly horizon: EventHorizon
+    private readonly horizon: EventHorizon,
+    private readonly errorHandler?: ErrorHandler
   ) {}
 
   /**
@@ -112,8 +112,10 @@ export class Superposition {
       emit,
       lifecycle,
       destroyOnInteraction,
+      errorHandler,
     } = contract;
     const context = scope ?? this.higgs;
+    const selectedErrorhandler = errorHandler ?? this.errorHandler;
 
     const parsedArgs = using
       ? using.map((arg) => {
@@ -145,7 +147,11 @@ export class Superposition {
         this.aether.emit(emit, particle);
       }
     } catch (err) {
-      this.errorHandler.handle(err);
+      selectedErrorhandler?.handle(err, {
+        rule: contract,
+        event: upon,
+        eventArgs: parsedArgs,
+      });
     }
   }
 
@@ -249,7 +255,16 @@ export class Superposition {
     interaction: Interaction<TParticle, TArgs, TMethodName>,
     instance: TParticle
   ) {
-    const { use: target, call, with: args, then, emit } = interaction;
+    const {
+      use: target,
+      call,
+      with: args,
+      then,
+      emit,
+      errorHandler,
+      upon,
+    } = interaction;
+    const selectedErrorhandler = errorHandler ?? this.errorHandler;
 
     try {
       const _args = [];
@@ -293,12 +308,11 @@ export class Superposition {
         this.higgs.destroy(target as Particle);
       }
     } catch (err) {
-      this.errorHandler.handle(err);
+      selectedErrorhandler?.handle(err, {
+        rule: interaction,
+        event: upon,
+        eventArgs: args,
+      });
     }
-  }
-
-  public catch(errorHandler: ErrorHandler): this {
-    this.errorHandler = errorHandler;
-    return this;
   }
 }
