@@ -1,3 +1,4 @@
+import { HawkingRadiation } from '../../hawking-radiation/HawkingRadiation';
 import { QuantumPointer } from '../../quantum-pointer/QuantumPointer';
 import { Notation } from '../Notation';
 
@@ -25,10 +26,15 @@ export type Callable<Args extends any[] = any[], Output = any> = Record<
 >;
 
 /**
- * Represents a value that can be provided directly, as a lazy-loaded QuantumPointer or a Notation.
+ * Represents a value that can be provided directly (T) or as a lazy pointer
+ * to be resolved at runtime from various sources.
  * @template T The direct type of the value.
  */
-export type Resolvable<T> = T | QuantumPointer<T, any[]> | Notation<any, T>;
+export type Resolvable<T> =
+  | T
+  | QuantumPointer<T, any[]>
+  | Notation<any, T>
+  | HawkingRadiation<T>;
 
 /**
  * Maps a tuple of argument types `TArgs` to a new tuple where each
