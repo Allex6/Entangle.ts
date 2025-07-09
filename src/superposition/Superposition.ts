@@ -1,6 +1,7 @@
 import { Aether } from '../aether';
 import { ErrorHandler } from '../errors/ErrorHandler';
 import { EventHorizon } from '../event-horizon/EventHorizon';
+import { HawkingRadiation } from '../hawking-radiation/HawkingRadiation';
 import { HiggsField } from '../higgs-field/HiggsField';
 import { QuantumPointer } from '../quantum-pointer/QuantumPointer';
 import { Notation } from '../shared/Notation';
@@ -132,6 +133,10 @@ export class Superposition {
             return arg.get();
           }
 
+          if (arg instanceof HawkingRadiation) {
+            return arg.get();
+          }
+
           return arg;
         })
       : [];
@@ -145,7 +150,7 @@ export class Superposition {
       const particle = new (build as Particle)(...parsedArgs);
 
       if (then) {
-        then(particle);
+        Promise.resolve(particle).then((res) => then(res));
       }
 
       if (emit) {
@@ -228,7 +233,7 @@ export class Superposition {
       let instance: undefined | TParticle;
 
       if (target instanceof Notation) {
-        instance = this.horizon.query().using(target.get()).get();
+        instance = this.horizon.query().using(target).get();
       } else if (target instanceof QuantumPointer) {
         instance = target.get();
       } else {
@@ -259,17 +264,22 @@ export class Superposition {
       emit,
       errorHandler,
       upon,
+      entanglement,
     } = interaction;
     const selectedErrorhandler = errorHandler ?? this.errorHandler;
 
     try {
-      const _args = [];
+      const _args: unknown[] = [];
 
       if (args) {
         for (const arg of args) {
           if (arg instanceof Notation) {
             _args.push(arg.getData(this.horizon.query().get()));
             continue;
+          }
+
+          if (arg instanceof HawkingRadiation) {
+            _args.push(arg.get());
           }
 
           _args.push(arg);
@@ -279,14 +289,24 @@ export class Superposition {
       const methodToCall = (instance as any)[call];
 
       if (typeof methodToCall === 'function') {
-        const result = methodToCall.bind(instance)(..._args);
+        const result = Promise.resolve(methodToCall.bind(instance)(..._args));
 
-        if (then) {
-          Promise.resolve(result).then((res) => then(res));
-        }
+        result
+          .then((res) => {
+            if (then) {
+              then(res);
+            }
+          })
+          .catch((err) => {
+            this.errorHandler?.handle(err, {
+              rule: interaction,
+              event: upon,
+              eventArgs: _args,
+            });
+          });
 
         if (emit) {
-          this.aether.emit(emit, result);
+          this.aether.emit(emit, entanglement, result);
         }
       } else {
         throw new Error(
