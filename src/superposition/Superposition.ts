@@ -7,11 +7,7 @@ import { QuantumPointer } from '../quantum-pointer/QuantumPointer';
 import { Notation } from '../shared/Notation';
 import { CausalityLog, Event } from '../shared/types/Events.types';
 import { Interaction } from '../shared/types/Interactions.types';
-import {
-  Boson,
-  Particle,
-  ParticleProperties,
-} from '../shared/types/Particles.types';
+import { Boson, Particle, ParticleProperties } from '../shared/types/Particles.types';
 import { MethodKeys } from '../shared/types/Utils.types';
 import { GatewayBuilder } from './builders/Gateway.builder';
 
@@ -32,7 +28,9 @@ import { GatewayBuilder } from './builders/Gateway.builder';
  */
 export class Superposition {
   public readonly particlesContracts = new Map<number, ParticleProperties>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public readonly contracts: ParticleProperties<any, any>[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public readonly interactions: Interaction<any, any, any>[] = [];
 
   constructor(
@@ -58,8 +56,7 @@ export class Superposition {
    */
   private checkForParticlesCreation(event: string, entanglement: string) {
     const filteredContracts = this.contracts.filter(
-      (contract) =>
-        contract.upon === event && contract.entanglement === entanglement
+      (contract) => contract.upon === event && contract.entanglement === entanglement
     );
 
     for (const contract of filteredContracts) {
@@ -170,7 +167,7 @@ export class Superposition {
    * This method is intended to be called by a builder.
    * @internal
    */
-  public addContract<TParticle, TArgs extends any[]>(
+  public addContract<TParticle, TArgs extends unknown[]>(
     contract: ParticleProperties<TParticle, TArgs>
   ): this {
     const { upon, once } = contract;
@@ -195,7 +192,7 @@ export class Superposition {
   public addInteraction<
     TParticle extends object,
     TArgs extends unknown[],
-    TMethodName extends MethodKeys<TParticle>
+    TMethodName extends MethodKeys<TParticle>,
   >(interaction: Interaction<TParticle, TArgs, TMethodName>): this {
     this.interactions.push(interaction);
 
@@ -222,7 +219,7 @@ export class Superposition {
   private checkForParticlesInteractions<
     TParticle extends object,
     TArgs extends unknown[],
-    TMethodName extends MethodKeys<TParticle>
+    TMethodName extends MethodKeys<TParticle>,
   >(event: string, entanglement: string) {
     const filteredInteractions = this.interactions.filter(
       (i) => i.upon === event && i.entanglement === entanglement
@@ -251,11 +248,8 @@ export class Superposition {
   private interact<
     TParticle extends object,
     TArgs extends unknown[],
-    TMethodName extends MethodKeys<TParticle>
-  >(
-    interaction: Interaction<TParticle, TArgs, TMethodName>,
-    instance: TParticle
-  ) {
+    TMethodName extends MethodKeys<TParticle>,
+  >(interaction: Interaction<TParticle, TArgs, TMethodName>, instance: TParticle) {
     const {
       use: target,
       call,
@@ -286,6 +280,7 @@ export class Superposition {
         }
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const methodToCall = (instance as any)[call];
 
       if (typeof methodToCall === 'function') {
@@ -310,17 +305,13 @@ export class Superposition {
         }
       } else {
         throw new Error(
-          `Method "${String(
-            call
-          )}" does not exist or is not a function on particle "${
+          `Method "${String(call)}" does not exist or is not a function on particle "${
             instance.constructor.name
           }".`
         );
       }
 
-      if (
-        !this.higgs.getParticleOptions(target as Particle)?.destroyOnInteraction
-      ) {
+      if (!this.higgs.getParticleOptions(target as Particle)?.destroyOnInteraction) {
         this.higgs.destroy(target as Particle);
       }
     } catch (err) {

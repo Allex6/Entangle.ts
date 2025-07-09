@@ -6,11 +6,10 @@ import { Particle, ParticleProperties } from '../shared/types/Particles.types';
  * dependency injection container that manages object lifecycles and scopes.
  */
 export class HiggsField {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly particles = new Map<Particle<any, any[]>, any>();
-  private readonly factories = new Map<
-    Particle<any, any[]> | string,
-    FactoryMap
-  >();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly factories = new Map<Particle<any, any[]> | string, FactoryMap>();
 
   constructor(private readonly parent?: HiggsField) {}
 
@@ -21,7 +20,7 @@ export class HiggsField {
    * @param factory The function that returns a new instance of the particle.
    * @param options Lifecycle options for the particle (e.g., scope).
    */
-  public register<TParticle, TArgs extends any[]>(
+  public register<TParticle, TArgs extends unknown[]>(
     particleClass: Particle<TParticle, TArgs> | string,
     factory: () => TParticle,
     options: ParticleOptions = {
@@ -39,7 +38,7 @@ export class HiggsField {
    * @returns An instance of the particle.
    * @throws {Error} If the particle is not registered in this scope or any parent scope.
    */
-  public get<TParticle, TArgs extends any[]>(
+  public get<TParticle, TArgs extends unknown[]>(
     particleClass: Particle<TParticle, TArgs>
   ): TParticle {
     const registration = this.factories.has(particleClass)
@@ -72,9 +71,7 @@ export class HiggsField {
   /**
    * Helper method used to get a particle object of options defined upon creation
    */
-  public getParticleOptions(
-    particleClass: Particle
-  ): ParticleOptions | undefined {
+  public getParticleOptions(particleClass: Particle): ParticleOptions | undefined {
     return this.factories.get(particleClass)?.options;
   }
 
@@ -91,12 +88,10 @@ export class HiggsField {
 /**
  * Options defining a particle's lifecycle and behavior within the HiggsField.
  */
-type ParticleOptions = Pick<
-  ParticleProperties,
-  'lifecycle' | 'destroyOnInteraction'
->;
+type ParticleOptions = Pick<ParticleProperties, 'lifecycle' | 'destroyOnInteraction'>;
 
 interface FactoryMap {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   factory: () => any;
   options: ParticleOptions;
 }

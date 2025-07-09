@@ -30,12 +30,8 @@ export class Notation<TRoot, TCurrent> {
    * @param prop The key of the property to access.
    * @returns A new Notation instance focused on the type of the accessed property.
    */
-  public property<K extends keyof TCurrent>(
-    prop: K
-  ): Notation<TRoot, TCurrent[K]> {
-    const newNotation = this._notation
-      ? `${this._notation}.${String(prop)}`
-      : String(prop);
+  public property<K extends keyof TCurrent>(prop: K): Notation<TRoot, TCurrent[K]> {
+    const newNotation = this._notation ? `${this._notation}.${String(prop)}` : String(prop);
     return new Notation<TRoot, TCurrent[K]>(newNotation);
   }
 
@@ -45,9 +41,7 @@ export class Notation<TRoot, TCurrent> {
    * @param i The index of the array to access.
    * @returns A new Notation instance focused on the type of the array element.
    */
-  public index(
-    i: number
-  ): Notation<TRoot, TCurrent extends (infer U)[] ? U : never> {
+  public index(i: number): Notation<TRoot, TCurrent extends (infer U)[] ? U : never> {
     const newNotation = this._notation ? `${this._notation}.${i}` : String(i);
     return new Notation(newNotation);
   }
@@ -71,6 +65,7 @@ export class Notation<TRoot, TCurrent> {
     }
 
     const parts = this._notation.split('.');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let currentValue: any = data;
 
     for (const part of parts) {

@@ -6,6 +6,7 @@ import { ParticleProperties } from '../shared/types/Particles.types';
  * that was being executed.
  */
 export interface ErrorContext {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rule: ParticleProperties | Interaction<any, any, any, any>;
   event?: string;
   eventArgs?: unknown[];

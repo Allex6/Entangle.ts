@@ -5,7 +5,7 @@ import { QueryBuilder } from '../event-horizon/builders/Query.builder';
  * In our analogy, this is the radiation that "escapes" the horizon,
  * carrying information about a past event.
  */
-export class HawkingRadiation<T = any> {
+export class HawkingRadiation<T = unknown> {
   private constructor(private readonly queryBuilder: QueryBuilder) {}
 
   /**

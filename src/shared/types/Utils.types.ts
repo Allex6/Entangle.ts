@@ -20,7 +20,7 @@ export type Promisable<T = void> = T | Promise<T>;
 /**
  * Represents a callable mthod from an object
  */
-export type Callable<Args extends any[] = any[], Output = any> = Record<
+export type Callable<Args extends unknown[] = unknown[], Output = unknown> = Record<
   string,
   (...args: Args) => Output
 >;
@@ -32,8 +32,8 @@ export type Callable<Args extends any[] = any[], Output = any> = Record<
  */
 export type Resolvable<T> =
   | T
-  | QuantumPointer<T, any[]>
-  | Notation<any, T>
+  | QuantumPointer<T, unknown[]>
+  | Notation<unknown, T>
   | HawkingRadiation<T>;
 
 /**
@@ -50,5 +50,5 @@ export type ResolvableArgs<TArgs extends unknown[]> = {
  * whose values are functions (methods).
  */
 export type MethodKeys<T> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+  [K in keyof T]: T[K] extends (...args: unknown[]) => unknown ? K : never;
 }[keyof T];

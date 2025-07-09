@@ -17,7 +17,7 @@ export class ParticleContractBuilder<TParticle, TArgs extends unknown[]> {
     private readonly parent: Superposition,
     private readonly _event: string,
     private readonly _when?: NotationString,
-    private readonly _is?: any
+    private readonly _is?: unknown
   ) {
     this.contract.upon = this._event;
     this.contract.when = this._when;
@@ -86,11 +86,7 @@ export class ParticleContractBuilder<TParticle, TArgs extends unknown[]> {
 
   public then(callback?: Callback<[TParticle]>): Superposition {
     // If both upon and build are missing, we cannot create a particle
-    if (
-      !this.contract.upon ||
-      !this.contract.build ||
-      !this.contract.entanglement
-    ) {
+    if (!this.contract.upon || !this.contract.build || !this.contract.entanglement) {
       throw new Error('Missing required properties');
     }
 

@@ -3,6 +3,7 @@ import { CausalityLog, Event } from '../../shared/types/Events.types';
 
 export class QueryBuilder {
   private fromClause?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private notationInstance?: Notation<any, any>;
 
   constructor(private readonly causalityLogs: CausalityLog<unknown[]>[]) {}
@@ -22,6 +23,7 @@ export class QueryBuilder {
    * This is necessary when an argument is an object or array.
    * @param notation The dot-notation string (e.g., 'user.profile.name').
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public using(notation?: Notation<any, any>): this {
     this.notationInstance = notation;
     return this;
@@ -35,9 +37,7 @@ export class QueryBuilder {
    */
   public get<TData = unknown>(): TData | undefined {
     if (!this.notationInstance) {
-      throw new Error(
-        'Query cannot be executed without a `.using(notation)` clause.'
-      );
+      throw new Error('Query cannot be executed without a `.using(notation)` clause.');
     }
 
     const relevantLog = [...this.causalityLogs]

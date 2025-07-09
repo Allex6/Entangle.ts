@@ -1,24 +1,21 @@
 import { ErrorHandler } from '../../errors/ErrorHandler';
 import { Event } from '../../shared/types/Events.types';
 import { Interaction, Target } from '../../shared/types/Interactions.types';
-import {
-  Callback,
-  MethodKeys,
-  ResolvableArgs,
-} from '../../shared/types/Utils.types';
+import { Callback, MethodKeys, ResolvableArgs } from '../../shared/types/Utils.types';
 import { Superposition } from '../Superposition';
 
 export class InteractionBuilder<
   TParticle extends object,
   TArgs extends unknown[],
-  TMethodName extends MethodKeys<TParticle> | null = null
+  TMethodName extends MethodKeys<TParticle> | null = null,
 > {
-  private readonly interaction: Partial<Interaction<TParticle, TArgs, any>> =
-    {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly interaction: Partial<Interaction<TParticle, TArgs, any>> = {};
 
   constructor(
     private readonly parent: Superposition,
     private readonly event: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initialInteraction: Partial<Interaction<TParticle, TArgs, any>> = {}
   ) {
     this.interaction = { ...initialInteraction, upon: this.event };
@@ -49,9 +46,7 @@ export class InteractionBuilder<
    */
   public with(
     ...args: TMethodName extends MethodKeys<TParticle>
-      ? ResolvableArgs<
-          Parameters<Extract<TParticle[TMethodName], (...args: any) => any>>
-        >
+      ? ResolvableArgs<Parameters<Extract<TParticle[TMethodName], (...args: unknown[]) => unknown>>>
       : never
   ): this {
     this.interaction.with = args;
@@ -86,27 +81,13 @@ export class InteractionBuilder<
   public then(callback?: Callback): Superposition {
     this.interaction.then = callback;
 
-    if (
-      !this.interaction.use ||
-      !this.interaction.call ||
-      !this.interaction.entanglement
-    ) {
+    if (!this.interaction.use || !this.interaction.call || !this.interaction.entanglement) {
       throw new Error(
         'Invalid interaction provided. You must call both "use" and "call" methods before calling "with"'
       );
     }
 
-    this.parent.addInteraction({
-      upon: this.interaction.upon,
-      use: this.interaction.use,
-      call: this.interaction.call,
-      with: this.interaction.with,
-      then: this.interaction.then,
-      emit: this.interaction.emit,
-      requirements: this.interaction.requirements,
-      once: this.interaction.once,
-      entanglement: this.interaction.entanglement,
-    });
+    this.parent.addInteraction(this.interaction as Interaction<TParticle, TArgs>);
 
     return this.parent;
   }

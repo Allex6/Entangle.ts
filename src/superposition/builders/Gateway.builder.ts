@@ -1,9 +1,6 @@
 import { NotationString } from '../../shared/Notation';
 import { Target } from '../../shared/types/Interactions.types';
-import {
-  Particle,
-  ParticleProperties,
-} from '../../shared/types/Particles.types';
+import { Particle, ParticleProperties } from '../../shared/types/Particles.types';
 import { Superposition } from '../Superposition';
 import { InteractionBuilder } from './Interaction.builder';
 import { ParticleContractBuilder } from './Particle.builder';
@@ -32,7 +29,7 @@ export class GatewayBuilder {
     return this;
   }
 
-  public is(value: any): this {
+  public is(value: unknown): this {
     this.particleContract.is = value;
     return this;
   }
@@ -40,9 +37,6 @@ export class GatewayBuilder {
   public use<TParticle extends object, TArgs extends unknown[]>(
     target: Target<TParticle, TArgs>
   ): InteractionBuilder<TParticle, TArgs> {
-    return new InteractionBuilder<TParticle, TArgs>(
-      this.parent,
-      this.eventName
-    ).use(target);
+    return new InteractionBuilder<TParticle, TArgs>(this.parent, this.eventName).use(target);
   }
 }
