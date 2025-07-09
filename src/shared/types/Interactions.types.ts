@@ -19,7 +19,7 @@ export interface Interaction<
   TParticle extends object,
   TArgs extends unknown[],
   TMethodName extends MethodKeys<TParticle> = MethodKeys<TParticle>,
-  TResult = unknown
+  TResult = unknown,
 > {
   /**
    * The event that triggers this interaction.

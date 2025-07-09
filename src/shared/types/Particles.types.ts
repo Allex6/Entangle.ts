@@ -9,10 +9,9 @@ import { Callback, ResolvableArgs } from './Utils.types';
  * @template TParticle The type of the instance created by the class.
  * @template TArgs A tuple type representing the constructor's arguments.
  */
-export type Particle<
-  TParticle = unknown,
-  TArgs extends unknown[] = unknown[]
-> = new (...args: TArgs) => TParticle;
+export type Particle<TParticle = unknown, TArgs extends unknown[] = unknown[]> = new (
+  ...args: TArgs
+) => TParticle;
 
 /**
  * Represents a blueprint (contract) for creating a dynamic particle.
@@ -20,10 +19,7 @@ export type Particle<
  * @template TParticle The type of the instance to be built.
  * @template TArgs The tuple type for the constructor arguments of the instance.
  */
-export interface ParticleProperties<
-  TParticle = unknown,
-  TArgs extends unknown[] = unknown[]
-> {
+export interface ParticleProperties<TParticle = unknown, TArgs extends unknown[] = unknown[]> {
   /**
    * The event that triggers the creation of the particle.
    */

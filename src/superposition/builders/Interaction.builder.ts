@@ -46,7 +46,8 @@ export class InteractionBuilder<
    */
   public with(
     ...args: TMethodName extends MethodKeys<TParticle>
-      ? ResolvableArgs<Parameters<Extract<TParticle[TMethodName], (...args: unknown[]) => unknown>>>
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ResolvableArgs<Parameters<Extract<TParticle[TMethodName], (...args: any[]) => unknown>>>
       : never
   ): this {
     this.interaction.with = args;
