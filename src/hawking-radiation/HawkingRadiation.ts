@@ -12,8 +12,8 @@ export class HawkingRadiation<T = unknown> {
    * Creates a new pointer to information from the EventHorizon.
    * @param queryBuilder A configured QueryBuilder instance that specifies which data to fetch.
    */
-  static from(queryBuilder: QueryBuilder): HawkingRadiation {
-    return new HawkingRadiation(queryBuilder);
+  static from<TData = unknown>(queryBuilder: QueryBuilder): HawkingRadiation<TData> {
+    return new HawkingRadiation<TData>(queryBuilder);
   }
 
   /**
