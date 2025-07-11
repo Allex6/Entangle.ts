@@ -1,17 +1,32 @@
 {
   "name": "entangle.ts",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "A declarative, event-driven framework for orchestrating business logic in TypeScript & Node.js applications.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "format": "prettier --write \"src/**/*.{ts,json}\"",
     "prepare": "husky"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "framework",
+    "orchestration",
+    "event-driven",
+    "decoupling",
+    "typescript",
+    "node",
+    "ioc",
+    "di"
+  ],
+  "author": "Alex Souza <alex.webdevelloper@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allex6/entangle.ts.git"
+  },
+  "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
@@ -25,5 +40,10 @@
     "prettier": "^3.6.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.36.0"
-  }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ]
 }
