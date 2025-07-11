@@ -293,7 +293,7 @@ export class Superposition {
             }
           })
           .catch((err) => {
-            this.errorHandler?.handle(err, {
+            selectedErrorhandler?.handle(err, {
               rule: interaction,
               event: upon,
               eventArgs: _args,
