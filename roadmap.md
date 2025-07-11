@@ -14,7 +14,7 @@ This phase is focused on making the framework secure and reliable for production
 
 - **[ ] Declarative Error Handling:** Introduce a `.catch()` API to the rule chains to handle exceptions gracefully.
 - **[ ] Circular Dependency Detection:** Protect the `HiggsField` from infinite loops during dependency injection.
-- **[ ] Consistent Lifecycle API:** Finalize the API for persistent vs. single-use rules (e.g., via a `.once()` method).
+- **[ ] Consistent Lifecycle API:** Finalize the API for persistent vs. single-use rules
 - **[ ] Test Coverage:** Significantly increase test coverage to ensure the framework functions correctly in all core use cases.
 
 ### Near Term: v0.3.0 (Focus on Developer Experience)
