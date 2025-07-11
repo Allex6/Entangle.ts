@@ -149,6 +149,10 @@ console.log('Starting application...');
 aether.emit('app.start', STARTUP_ID);
 ```
 
+## Roadmap
+
+[🗺️ Entangle.ts Roadmap](https://github.com/Allex6/Entangle.ts/blob/main/roadmap.md)
+
 ## Contributing
 
 This is an open-source project, and we would love your help! If you've found a bug, have an idea for a new feature, or want to improve the documentation, please open an Issue on GitHub.
