@@ -20,7 +20,7 @@ This is the philosophy of `Entangle.ts`. Your business objects are the **Particl
 
 Our universe is supported by a small set of conceptual components, each with a well-defined role.
 
-### 🌀 Superposition
+### ⚛️ Superposition
 
 - **The Analogy:** The principle of Quantum Superposition states that a particle, when unobserved, exists in all its possible states at once. The famous Schrödinger's Cat is simultaneously alive **and** dead until the box is opened. The act of observing ("measurement") forces the universe to "choose" a single reality.
 - **The Role:** The `Superposition` class is the **central orchestrator**, the brain that holds all the "possible realities" of your application in the form of rules. When an event occurs (the "measurement"), `Superposition` analyzes the rules and "collapses" the possibilities into a concrete sequence of actions and interactions, setting the rest of our universe in motion.
@@ -38,7 +38,7 @@ Our universe is supported by a small set of conceptual components, each with a w
 - **The Role:** The `HiggsField` is our **Dependency Injection (DI) container**. It gives "mass" (existence and a lifecycle) to your service particles. This is where you register, retrieve, and manage your long-lived, foundational particles (like singletons). The `.createScope()` method allows you to create a temporary, isolated "bubble universe" (another `HiggsField` instance) to safely assemble complex dependency graphs without polluting the main scope.
 - **Key Methods:** `register()`, `get()`, `createScope()`.
 
-### ⚫ EventHorizon & HawkingRadiation
+### 🌀 EventHorizon & HawkingRadiation
 
 - **The Analogy:** A black hole's Event Horizon is the boundary from which no information can escape. However, Hawking Radiation theorizes that information can, in fact, slowly "leak" out.
 - **The Role:** The `EventHorizon` is the **immutable, long-term memory** of the system, recording every event that has ever occurred. `HawkingRadiation` is our query tool, a "lazy pointer" that represents an **intent to search** the `EventHorizon`. It allows us to "extract" information about past events to make decisions in the present.
