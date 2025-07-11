@@ -4,7 +4,8 @@
 
 [![NPM Version](https://img.shields.io/npm/v/entangle.ts.svg)](https://www.npmjs.com/package/entangle.ts)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/allex6/entangle.ts/main.yml?branch=main)](https://github.com/allex6/entangle.ts/actions)
+
+<!-- [![Build Status](https://img.shields.io/github/actions/workflow/status/allex6/entangle.ts/main.yml?branch=main)](https://github.com/allex6/entangle.ts/actions) -->
 
 ---
 
