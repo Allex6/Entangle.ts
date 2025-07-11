@@ -79,7 +79,7 @@ export class ParticleContractBuilder<TParticle, TArgs extends unknown[]> {
     return this;
   }
 
-  public errorHandler(errorHandler: ErrorHandler): this {
+  public catch(errorHandler: ErrorHandler): this {
     this.contract.errorHandler = errorHandler;
     return this;
   }
@@ -91,22 +91,7 @@ export class ParticleContractBuilder<TParticle, TArgs extends unknown[]> {
     }
 
     this.contract.then = callback;
-
-    this.parent.addContract({
-      upon: this.contract.upon,
-      when: this.contract.when,
-      is: this.contract.is,
-      build: this.contract.build,
-      using: this.contract.using,
-      scope: this.contract.scope,
-      then: this.contract.then,
-      emit: this.contract.emit,
-      requirements: this.contract.requirements,
-      lifecycle: this.contract.lifecycle ?? 'singleton',
-      destroyOnInteraction: this.contract.destroyOnInteraction,
-      once: this.contract.once,
-      entanglement: this.contract.entanglement,
-    });
+    this.parent.addContract(this.contract as ParticleProperties);
 
     return this.parent;
   }

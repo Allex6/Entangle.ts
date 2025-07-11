@@ -74,7 +74,7 @@ export class InteractionBuilder<
     return this;
   }
 
-  public errorHandler(errorHandler: ErrorHandler): this {
+  public catch(errorHandler: ErrorHandler): this {
     this.interaction.errorHandler = errorHandler;
     return this;
   }
