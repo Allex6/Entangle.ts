@@ -80,7 +80,7 @@ export interface ParticleProperties<TParticle = unknown, TArgs extends unknown[]
    */
   once?: boolean;
   /**
-   * Handle possible erros upon this particle creation
+   * Handle possible errors upon this particle creation
    */
   errorHandler?: ErrorHandler;
 }
