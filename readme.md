@@ -58,7 +58,7 @@ Our universe is supported by a small set of conceptual components, each with a w
 
 This framework was born from a passion for clean, event-driven architectures and is under active and enthusiastic development. We have solidified the core concepts and the main API, creating a functional foundation that proves the model's potential.
 
-However, many features that are critical for a production-ready system are still being built, as outlined in our [**Roadmap**](ROADMAP.md). This includes, but is not limited to:
+However, many features that are critical for a production-ready system are still being built, as outlined in our [**Roadmap**](roadmap.md). This includes, but is not limited to:
 
 - A comprehensive error-handling system.
 - Robust circular dependency detection.
@@ -105,10 +105,16 @@ higgs.register(Greeter, () => new Greeter());
 
 // 3. Define the "laws of physics"
 const conversationId = 'welcome-flow';
+
+// 3.1 When this event happens
 sp.upon('user.joined')
+  // 3.2 Use the already built Greeter service
   .use(Greeter)
+  // 3.3 Specify the entanglement ID to group related events
   .entanglement(conversationId)
+  // 3.4 Define the action to take
   .call('sayHello')
+  // 3.5 Define which data to pass to the action
   .with(
     HawkingRadiation.from(
       horizon
@@ -118,6 +124,7 @@ sp.upon('user.joined')
         .using(Notation.create<[[{ name: string }]]>().index(0).index(0).property('name'))
     )
   )
+  // 3.6 Finally, save the rule to be executed when needed
   .then();
 
 // 4. Put the universe in motion

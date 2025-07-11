@@ -12,7 +12,7 @@ This is a living document and will be updated as the project evolves and we rece
 
 This phase is focused on making the framework secure and reliable for production use.
 
-- **[ ] Declarative Error Handling:** Introduce a `.catch()` API to the rule chains to handle exceptions gracefully.
+- **[ ] Declarative Error Handling:** Introduce a `.catch()` API to the rule chains to handle exceptions gracefully. There is currently a basic error handling system, but it needs to be more robust and user-friendly.
 - **[ ] Circular Dependency Detection:** Protect the `HiggsField` from infinite loops during dependency injection.
 - **[ ] Consistent Lifecycle API:** Finalize the API for persistent vs. single-use rules
 - **[ ] Test Coverage:** Significantly increase test coverage to ensure the framework functions correctly in all core use cases.
