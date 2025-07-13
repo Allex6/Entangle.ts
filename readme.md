@@ -25,7 +25,7 @@ Our universe is supported by a small set of conceptual components, each with a w
 
 - **The Analogy:** The principle of Quantum Superposition states that a particle, when unobserved, exists in all its possible states at once. The famous Schrödinger's Cat is simultaneously alive **and** dead until the box is opened. The act of observing ("measurement") forces the universe to "choose" a single reality.
 - **The Role:** The `Superposition` class is the **central orchestrator**, the brain that holds all the "possible realities" of your application in the form of rules. When an event occurs (the "measurement"), `Superposition` analyzes the rules and "collapses" the possibilities into a concrete sequence of actions and interactions, setting the rest of our universe in motion.
-- **Key Method:** `upon(event, entanglement?)` - Begins the definition of a law of physics that will be triggered by an event.
+- **Key Method:** `upon(event)` - Begins the definition of a law of physics that will be triggered by an event.
 
 ### ⚡ Aether & Bosons
 
