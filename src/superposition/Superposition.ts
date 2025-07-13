@@ -3,10 +3,13 @@ import { ErrorHandler } from '../errors/ErrorHandler';
 import { EventHorizon } from '../event-horizon/EventHorizon';
 import { HawkingRadiation } from '../hawking-radiation/HawkingRadiation';
 import { HiggsField } from '../higgs-field/HiggsField';
+import { ConsoleLogger } from '../logging/ConsoleLogger';
+import { Logging } from '../logging/Logging';
 import { QuantumPointer } from '../quantum-pointer/QuantumPointer';
 import { Notation } from '../shared/Notation';
 import { CausalityLog, Event } from '../shared/types/Events.types';
 import { Interaction } from '../shared/types/Interactions.types';
+import { ELogType } from '../shared/types/Logging.types';
 import { Boson, Particle, ParticleProperties } from '../shared/types/Particles.types';
 import { MethodKeys } from '../shared/types/Utils.types';
 import { GatewayBuilder } from './builders/Gateway.builder';
@@ -32,6 +35,7 @@ export class Superposition {
   public readonly contracts: ParticleProperties<any, any>[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public readonly interactions: Interaction<any, any, any>[] = [];
+  private readonly logger = new Logging('custom', new ConsoleLogger());
 
   constructor(
     private readonly aether: Aether,
@@ -145,6 +149,11 @@ export class Superposition {
       });
 
       const particle = new (build as Particle)(...parsedArgs);
+
+      this.logger.log({
+        message: `Particle ${build.name} were built with arguments [${parsedArgs.join(',')}]`,
+        type: ELogType.CREATION,
+      });
 
       if (then) {
         Promise.resolve(particle).then((res) => then(res));
@@ -286,6 +295,11 @@ export class Superposition {
       if (typeof methodToCall === 'function') {
         const result = Promise.resolve(methodToCall.bind(instance)(..._args));
 
+        this.logger.log({
+          message: `Executed method '${String(call)}' on particle ${instance.constructor.name} with arguments [${_args.join(',')}]`,
+          type: ELogType.INTERACTION,
+        });
+
         result
           .then((res) => {
             if (then) {
@@ -313,6 +327,11 @@ export class Superposition {
 
       if (!this.higgs.getParticleOptions(target as Particle)?.destroyOnInteraction) {
         this.higgs.destroy(target as Particle);
+
+        this.logger.log({
+          message: `Particle ${instance.constructor.name} destroyed`,
+          type: ELogType.DESTRUCTION,
+        });
       }
     } catch (err) {
       selectedErrorhandler?.handle(err, {
