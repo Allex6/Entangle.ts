@@ -84,6 +84,11 @@ export class Superposition {
       const data = this.horizon.query().from(upon).get<CausalityLog<unknown>>();
       const parsedData = Notation.create(when).getData(data);
       if (parsedData !== is) {
+        this.logger.log({
+          type: ELogType.CREATION,
+          message: `Condition not met for particle creation: expected '${is}', got '${parsedData}'`,
+        });
+
         return false;
       }
     }
@@ -94,6 +99,11 @@ export class Superposition {
       for (const event of requirements) {
         const eventOcurred = this.horizon.query().from(event).get();
         if (eventOcurred === undefined) {
+          this.logger.log({
+            type: ELogType.CREATION,
+            message: `Requirement not met for particle creation: event '${event}' has not occurred`,
+          });
+
           return false;
         }
       }
@@ -143,6 +153,11 @@ export class Superposition {
       : [];
 
     try {
+      this.logger.log({
+        type: ELogType.CREATION,
+        message: `Creating particle ${build.name} with arguments [${parsedArgs.join(',')}]`,
+      });
+
       context.register(build, () => new (build as Particle)(...parsedArgs), {
         destroyOnInteraction,
         lifecycle,
@@ -156,10 +171,20 @@ export class Superposition {
       });
 
       if (then) {
+        this.logger.log({
+          message: `Executing 'then' callback for particle ${build.name}`,
+          type: ELogType.INTERACTION,
+        });
+
         Promise.resolve(particle).then((res) => then(res));
       }
 
       if (emit) {
+        this.logger.log({
+          message: `Emitting event '${emit}' with entanglement '${entanglement}' for particle ${build.name}`,
+          type: ELogType.INTERACTION,
+        });
+
         this.aether.emit(emit, entanglement, particle);
       }
     } catch (err) {
@@ -184,6 +209,12 @@ export class Superposition {
 
     this.aether[subscribeMethod](upon, (boson: Boson) => {
       const { payload, entanglement } = boson;
+
+      this.logger.log({
+        type: ELogType.CREATION,
+        message: `Event '${upon}' entangled to '${entanglement}' received payload: ${JSON.stringify(payload)}`,
+      });
+
       this.horizon.add(upon, payload);
       this.checkForParticlesCreation(upon, entanglement);
       this.checkForParticlesInteractions(upon, entanglement);
@@ -211,6 +242,11 @@ export class Superposition {
     if (upon) {
       this.aether[subscribeMethod](upon, (boson: Boson) => {
         const { payload, entanglement } = boson;
+
+        this.logger.log({
+          type: ELogType.INTERACTION,
+          message: `Event '${upon}' entangled to '${entanglement}' received payload: ${JSON.stringify(payload)}`,
+        });
 
         this.horizon.add(upon, payload);
         this.checkForParticlesCreation(upon, entanglement);
@@ -247,6 +283,10 @@ export class Superposition {
       }
 
       if (!instance) {
+        this.logger.log({
+          type: ELogType.ERROR,
+          message: `Could not resolve instance for target: ${JSON.stringify(target)}`,
+        });
         throw new Error('Instance could not be resolved from target.');
       }
 
@@ -293,6 +333,11 @@ export class Superposition {
       const methodToCall = (instance as any)[call];
 
       if (typeof methodToCall === 'function') {
+        this.logger.log({
+          type: ELogType.INTERACTION,
+          message: `Executing method '${String(call)}' on particle ${instance.constructor.name} with arguments [${_args.join(',')}]`,
+        });
+
         const result = Promise.resolve(methodToCall.bind(instance)(..._args));
 
         this.logger.log({
@@ -303,6 +348,11 @@ export class Superposition {
         result
           .then((res) => {
             if (then) {
+              this.logger.log({
+                message: `Executing 'then' callback for particle ${instance.constructor.name}`,
+                type: ELogType.INTERACTION,
+              });
+
               then(res);
             }
           })
@@ -315,14 +365,22 @@ export class Superposition {
           });
 
         if (emit) {
+          this.logger.log({
+            message: `Emitting event '${emit}' with entanglement '${entanglement}' for particle ${instance.constructor.name}`,
+            type: ELogType.INTERACTION,
+          });
+
           this.aether.emit(emit, entanglement, result);
         }
       } else {
-        throw new Error(
-          `Method "${String(call)}" does not exist or is not a function on particle "${
-            instance.constructor.name
-          }".`
-        );
+        const errDesc = `Method "${String(call)}" does not exist or is not a function on particle "${instance.constructor.name}".`;
+
+        this.logger.log({
+          type: ELogType.ERROR,
+          message: errDesc,
+        });
+
+        throw new Error(errDesc);
       }
 
       if (!this.higgs.getParticleOptions(target as Particle)?.destroyOnInteraction) {
