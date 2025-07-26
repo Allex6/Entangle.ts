@@ -66,6 +66,7 @@ export class HiggsField {
    */
   public destroy(particleClass: Particle): void {
     this.particles.delete(particleClass);
+    this.factories.delete(particleClass);
   }
 
   /**
@@ -88,7 +89,7 @@ export class HiggsField {
 /**
  * Options defining a particle's lifecycle and behavior within the HiggsField.
  */
-type ParticleOptions = Pick<ParticleProperties, 'lifecycle' | 'destroyOnInteraction'>;
+export type ParticleOptions = Pick<ParticleProperties, 'lifecycle' | 'destroyOnInteraction'>;
 
 interface FactoryMap {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
