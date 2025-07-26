@@ -1,4 +1,3 @@
-import { NotationString } from '../../shared/Notation';
 import { Target } from '../../shared/types/Interactions.types';
 import { Particle, ParticleProperties } from '../../shared/types/Particles.types';
 import { Superposition } from '../Superposition';
@@ -22,16 +21,6 @@ export class GatewayBuilder {
       this.particleContract.when,
       this.particleContract.is
     ).build(particleClass);
-  }
-
-  public when(notation: NotationString): this {
-    this.particleContract.when = notation;
-    return this;
-  }
-
-  public is(value: unknown): this {
-    this.particleContract.is = value;
-    return this;
   }
 
   public use<TParticle extends object, TArgs extends unknown[]>(
