@@ -10,6 +10,7 @@ import { InteractionBuilder } from '../../src/superposition/builders/Interaction
 import { ConsoleErrorHandler } from '../../src/errors/ConsoleErrorHandler';
 import { Notation } from '../../src/shared/Notation';
 import { ParticleProperties } from '../../src/shared/types/Particles.types';
+import { Interaction } from '../../src/shared/types/Interactions.types';
 
 describe('Superposition', () => {
   let horizon: EventHorizon;
@@ -244,9 +245,168 @@ describe('Superposition', () => {
         InteractionBuilder
       );
     });
+
+    it('should allow to define interaction properties', () => {
+      const EVENT = faker.lorem.word();
+      const contract = superposition.upon(EVENT).use(SampleParticle);
+
+      expect(contract).toHaveProperty('call');
+      expect(contract).toHaveProperty('with');
+      expect(contract).toHaveProperty('emit');
+      expect(contract).toHaveProperty('requirements');
+      expect(contract).toHaveProperty('once');
+      expect(contract).toHaveProperty('entanglement');
+      expect(contract).toHaveProperty('catch');
+      expect(contract).toHaveProperty('then');
+    });
+
+    it('should throw an error if required properties are not defined', () => {
+      expect(() =>
+        superposition.upon(faker.company.name()).use(SampleParticle).then()
+      ).toThrowError(
+        'Invalid interaction provided. You must call "use", "call" and "entanglement" methods before calling "then"'
+      );
+    });
+
+    it('should correctly create a new interaction contract if only required properties are provided', () => {
+      const EVENT = faker.lorem.word();
+      const ENTANGLEMENT = faker.string.uuid();
+      const addInteractionSpy = vi.spyOn(superposition, 'addInteraction');
+
+      superposition.upon(EVENT).use(SampleParticle).call('hi').entanglement(ENTANGLEMENT).then();
+
+      expect(addInteractionSpy).toHaveBeenCalled();
+      expect(addInteractionSpy).toHaveBeenCalledWith({
+        upon: EVENT,
+        use: SampleParticle,
+        call: 'hi',
+        entanglement: ENTANGLEMENT,
+      });
+    });
+
+    it('should correctly create a new interaction contract with variations of properties', () => {
+      // Spies
+      const addInteractionSpy = vi.spyOn(superposition, 'addInteraction');
+      const aetherOnSpy = vi.spyOn(aether, 'on');
+      const aetherOnceSpy = vi.spyOn(aether, 'once');
+
+      // Requirements
+      const EVENT = faker.person.firstName();
+      const entanglement = faker.string.uuid();
+
+      // Variations and random data
+      const ONCE = faker.datatype.boolean() ? faker.datatype.boolean() : undefined;
+      const EMIT = faker.datatype.boolean() ? faker.lorem.word() : undefined;
+      const CATCH = faker.datatype.boolean() ? new ConsoleErrorHandler() : undefined;
+      const withArgs = faker.datatype.boolean() ? faker.person.firstName() : undefined;
+      const requirements = faker.datatype.boolean()
+        ? [faker.lorem.word(), faker.lorem.word()]
+        : undefined;
+
+      const builder = superposition
+        .upon(EVENT)
+        .use(SampleParticle)
+        .call('hi')
+        .entanglement(entanglement);
+      const expectedContract: Partial<Interaction<SampleParticle, [string]>> = {
+        use: SampleParticle,
+        entanglement,
+        upon: EVENT,
+        call: 'hi',
+      };
+
+      if (ONCE) {
+        builder.once();
+        expectedContract.once = true;
+      }
+
+      if (EMIT) {
+        builder.emit(EMIT);
+        expectedContract.emit = EMIT;
+      }
+
+      if (CATCH) {
+        builder.catch(CATCH);
+        expectedContract.errorHandler = CATCH;
+      }
+
+      if (withArgs) {
+        builder.with(withArgs);
+        expectedContract.with = [withArgs];
+      }
+
+      if (requirements) {
+        builder.requirements(requirements);
+        expectedContract.requirements = requirements;
+      }
+
+      builder.then();
+
+      expect(superposition.interactions).toHaveLength(1);
+      expect(addInteractionSpy).toHaveBeenCalled();
+      expect(addInteractionSpy).toHaveBeenCalledWith(expectedContract);
+
+      if (ONCE) {
+        expect(aetherOnceSpy).toHaveBeenCalled();
+        expect(aetherOnceSpy).toHaveBeenCalledWith(EVENT, expect.any(Function));
+      } else {
+        expect(aetherOnSpy).toHaveBeenCalled();
+        expect(aetherOnSpy).toHaveBeenCalledWith(EVENT, expect.any(Function));
+      }
+    });
+
+    it('should correctly create a new interaction contract with every property', () => {
+      // Spies
+      const addInteractionSpy = vi.spyOn(superposition, 'addInteraction');
+      const aetherOnceSpy = vi.spyOn(aether, 'once');
+
+      // Requirements
+      const EVENT = faker.person.firstName();
+      const entanglement = faker.string.uuid();
+
+      // Variations and random data
+      const EMIT = faker.lorem.word();
+      const WITH_ARGS = faker.person.firstName();
+      const CATCH = new ConsoleErrorHandler();
+      const requirements = [faker.lorem.word(), faker.lorem.word()];
+
+      superposition
+        .upon(EVENT)
+        .use(SampleParticle)
+        .call('hi')
+        .with(WITH_ARGS)
+        .entanglement(entanglement)
+        .emit(EMIT)
+        .once()
+        .catch(CATCH)
+        .requirements(requirements)
+        .then();
+
+      const expectedContract: Partial<Interaction<SampleParticle, [string]>> = {
+        use: SampleParticle,
+        entanglement,
+        upon: EVENT,
+        call: 'hi',
+        with: [WITH_ARGS],
+        emit: EMIT,
+        once: true,
+        requirements,
+        errorHandler: CATCH,
+      };
+
+      expect(superposition.interactions).toHaveLength(1);
+      expect(addInteractionSpy).toHaveBeenCalled();
+      expect(addInteractionSpy).toHaveBeenCalledWith(expectedContract);
+      expect(aetherOnceSpy).toHaveBeenCalled();
+      expect(aetherOnceSpy).toHaveBeenCalledWith(EVENT, expect.any(Function));
+    });
   });
 });
 
 class SampleParticle {
   constructor(private readonly name: string) {}
+
+  hi(customName?: string) {
+    console.log(`Hi, my name is ${customName ?? this.name}`);
+  }
 }
