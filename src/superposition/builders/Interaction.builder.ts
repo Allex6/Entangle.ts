@@ -84,12 +84,11 @@ export class InteractionBuilder<
 
     if (!this.interaction.use || !this.interaction.call || !this.interaction.entanglement) {
       throw new Error(
-        'Invalid interaction provided. You must call both "use" and "call" methods before calling "with"'
+        'Invalid interaction provided. You must call "use", "call" and "entanglement" methods before calling "then"'
       );
     }
 
     this.parent.addInteraction(this.interaction as Interaction<TParticle, TArgs>);
-
     return this.parent;
   }
 }
