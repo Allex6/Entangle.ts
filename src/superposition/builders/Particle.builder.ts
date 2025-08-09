@@ -92,7 +92,6 @@ export class ParticleContractBuilder<TParticle, TArgs extends unknown[]> {
 
     this.contract.then = callback;
     this.parent.addContract(this.contract as ParticleProperties);
-
     return this.parent;
   }
 }

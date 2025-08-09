@@ -81,8 +81,9 @@ export class Superposition {
 
     // Checks if the 'when' clause is satisfied
     if (typeof when !== 'undefined') {
-      const data = this.horizon.query().from(upon).get<CausalityLog<unknown>>();
-      const parsedData = Notation.create(when).getData(data);
+      const notation = Notation.create(when);
+      const data = this.horizon.query().from(upon).using(notation).get<CausalityLog<unknown>>();
+      const parsedData = notation.getData(data);
       if (parsedData !== is) {
         this.logger.log({
           type: ELogType.CREATION,
@@ -97,7 +98,7 @@ export class Superposition {
     // If not, nothing happens
     if (requirements?.length) {
       for (const event of requirements) {
-        const eventOcurred = this.horizon.query().from(event).get();
+        const eventOcurred = this.horizon.query().from(event).using(Notation.create()).get();
         if (eventOcurred === undefined) {
           this.logger.log({
             type: ELogType.CREATION,
