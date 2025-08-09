@@ -11,6 +11,7 @@ import { ConsoleErrorHandler } from '../../src/errors/ConsoleErrorHandler';
 import { Notation } from '../../src/shared/Notation';
 import { ParticleProperties } from '../../src/shared/types/Particles.types';
 import { Interaction } from '../../src/shared/types/Interactions.types';
+import { QuantumPointer } from '../../src/quantum-pointer/QuantumPointer';
 
 describe('Superposition', () => {
   let horizon: EventHorizon;
@@ -63,7 +64,7 @@ describe('Superposition', () => {
     it('should correctly create a new particle with only required properties', () => {
       const addContractSpy = vi.spyOn(superposition, 'addContract');
       const aetherOnSpy = vi.spyOn(aether, 'on');
-      const EVENT = faker.person.firstName();
+      const EVENT = faker.lorem.word();
       const entanglement = faker.string.uuid();
 
       superposition.upon(EVENT).build(SampleParticle).entanglement(entanglement).then();
@@ -86,7 +87,7 @@ describe('Superposition', () => {
       const aetherOnceSpy = vi.spyOn(aether, 'once');
 
       // Requirements
-      const EVENT = faker.person.firstName();
+      const EVENT = faker.lorem.word();
       const entanglement = faker.string.uuid();
 
       // Variations and random data
@@ -185,7 +186,7 @@ describe('Superposition', () => {
       const aetherOnceSpy = vi.spyOn(aether, 'once');
 
       // Requirements
-      const EVENT = faker.person.firstName();
+      const EVENT = faker.lorem.word();
       const entanglement = faker.string.uuid();
 
       // Variations and random data
@@ -291,7 +292,7 @@ describe('Superposition', () => {
       const aetherOnceSpy = vi.spyOn(aether, 'once');
 
       // Requirements
-      const EVENT = faker.person.firstName();
+      const EVENT = faker.lorem.word();
       const entanglement = faker.string.uuid();
 
       // Variations and random data
@@ -361,7 +362,7 @@ describe('Superposition', () => {
       const aetherOnceSpy = vi.spyOn(aether, 'once');
 
       // Requirements
-      const EVENT = faker.person.firstName();
+      const EVENT = faker.lorem.word();
       const entanglement = faker.string.uuid();
 
       // Variations and random data
@@ -400,6 +401,156 @@ describe('Superposition', () => {
       expect(aetherOnceSpy).toHaveBeenCalled();
       expect(aetherOnceSpy).toHaveBeenCalledWith(EVENT, expect.any(Function));
     });
+  });
+
+  it('should correctly build and register a particle on the main scope', () => {
+    // Spies
+    const higgsSpy = vi.spyOn(higgs, 'register');
+
+    // Requirements
+    const EVENT = faker.lorem.word();
+    const entanglement = faker.string.uuid();
+
+    // Variations and random data
+    const mockedName = faker.person.firstName();
+
+    superposition
+      .upon(EVENT)
+      .build(SampleParticle)
+      .using(mockedName)
+      .entanglement(entanglement)
+      .then();
+    aether.emit(EVENT, entanglement);
+
+    const callback = higgsSpy.mock.calls[0][1];
+    const resultingParticle = callback();
+
+    expect(higgsSpy).toHaveBeenCalled();
+    expect(higgsSpy).toHaveBeenCalledWith(SampleParticle, expect.any(Function), {
+      destroyOnInteraction: undefined,
+      lifecycle: undefined,
+    });
+    expect(resultingParticle).toBeInstanceOf(SampleParticle);
+  });
+
+  it('should correctly build and register a particle on a specific scope', () => {
+    const scope = higgs.createScope();
+
+    // Spies
+    const scopeSpy = vi.spyOn(scope, 'register');
+    const higgsSpy = vi.spyOn(higgs, 'register');
+
+    // Requirements
+    const EVENT = faker.lorem.word();
+    const entanglement = faker.string.uuid();
+
+    // Variations and random data
+    const mockedName = faker.person.firstName();
+
+    superposition
+      .upon(EVENT)
+      .build(SampleParticle)
+      .using(mockedName)
+      .entanglement(entanglement)
+      .inScope(scope)
+      .then();
+    aether.emit(EVENT, entanglement);
+
+    const callback = scopeSpy.mock.calls[0][1];
+    const resultingParticle = callback();
+
+    expect(higgsSpy).not.toHaveBeenCalled();
+    expect(scopeSpy).toHaveBeenCalled();
+    expect(scopeSpy).toHaveBeenCalledWith(SampleParticle, expect.any(Function), {
+      destroyOnInteraction: undefined,
+      lifecycle: undefined,
+    });
+    expect(resultingParticle).toBeInstanceOf(SampleParticle);
+  });
+
+  it('should not create a particle if the requirements are not satisfied', () => {
+    // Spies
+    const higgsSpy = vi.spyOn(higgs, 'register');
+
+    // Requirements
+    const EVENT = faker.lorem.word();
+    const ANOTHER_EVENT = faker.lorem.word();
+    const entanglement = faker.string.uuid();
+
+    // Variations and random data
+    const mockedName = faker.person.firstName();
+
+    superposition
+      .upon(EVENT)
+      .build(SampleParticle)
+      .using(mockedName)
+      .entanglement(entanglement)
+      .requirements([ANOTHER_EVENT])
+      .then();
+    aether.emit(EVENT, entanglement);
+
+    expect(higgsSpy).not.toHaveBeenCalled();
+  });
+
+  it('should handle the interaction between particles', () => {
+    // Requirements
+    const EVENT = faker.lorem.word();
+    const ANOTHER_EVENT = faker.lorem.word();
+    const entanglement = faker.string.uuid();
+
+    // Variations and random data
+    const mockedName = faker.person.firstName();
+    const anotherMockedName = faker.person.firstName();
+
+    superposition
+      .upon(EVENT)
+      .build(SampleParticle)
+      .using(mockedName)
+      .entanglement(entanglement)
+      .then();
+
+    superposition
+      .upon(ANOTHER_EVENT)
+      .use(QuantumPointer.create(SampleParticle, higgs))
+      .call('hi')
+      .entanglement(entanglement)
+      .with(anotherMockedName)
+      .then();
+
+    aether.emit(EVENT, entanglement);
+
+    // Spies
+    const sampleParticle = higgs.get(SampleParticle);
+    const sampleParticleSpy = vi.spyOn(sampleParticle, 'hi');
+
+    aether.emit(ANOTHER_EVENT, entanglement);
+
+    expect(sampleParticleSpy).toHaveBeenCalled();
+    expect(sampleParticleSpy).toHaveBeenCalledWith(anotherMockedName);
+  });
+
+  it('should ignore events with different entanglements', () => {
+    // Spies
+    const higgsSpy = vi.spyOn(higgs, 'register');
+
+    // Requirements
+    const EVENT = faker.lorem.word();
+    const entanglement = faker.string.uuid();
+    const anotherEntanglement = faker.string.uuid();
+
+    // Variations and random data
+    const mockedName = faker.person.firstName();
+
+    superposition
+      .upon(EVENT)
+      .build(SampleParticle)
+      .using(mockedName)
+      .entanglement(anotherEntanglement)
+      .then();
+
+    aether.emit(EVENT, entanglement);
+
+    expect(higgsSpy).not.toHaveBeenCalled();
   });
 });
 
