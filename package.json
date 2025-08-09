@@ -1,6 +1,6 @@
 {
   "name": "entangle.ts",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "A declarative, event-driven framework for orchestrating business logic in TypeScript & Node.js applications.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
